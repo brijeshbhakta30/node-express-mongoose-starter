@@ -1,0 +1,10 @@
+/lib/**
+/coverage/**
+/docs/**
+/jsdoc/**
+/templates/**
+/tests/bench/**
+/tests/fixtures/**
+/tests/performance/**
+/tmp/**
+gulpfile.bable.js

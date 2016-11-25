@@ -1,0 +1,49 @@
+{
+  "name": "es7NodeStarter",
+  "version": "1.0.0",
+  "description": "A Boilerplate application for building REST APIs using express, mongoose in ES7",
+  "main": "index.js",
+  "author": "Brijesh Bhakta <brijeshbhakta30@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "engines": {
+    "node": ">=4.6.x",
+    "npm": ">=2.15.x"
+  },
+  "scripts": {
+    "start": "gulp"
+  },
+  "babel": {
+    "presets": [
+      "latest"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brijeshbhakta30/node-express-mongoose-es7-starter.git"
+  },
+  "keywords": [
+    "express",
+    "node",
+    "node.js",
+    "mongodb",
+    "mongoose",
+    "starter",
+    "es6",
+    "es7",
+    "mocha",
+    "REST",
+    "API",
+    "boilerplate"
+  ],
+  "devDependencies": {
+    "babel-preset-latest": "^6.16.0",
+    "del": "^2.2.2",
+    "eslint": "^3.0.1",
+    "eslint-config-airbnb-base": "^10.0.1",
+    "eslint-plugin-import": "^2.1.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-eslint": "^3.0.1"
+  }
+}
