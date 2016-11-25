@@ -2,6 +2,7 @@
 logs
 *.log
 npm-debug.log*
+yarn-error.log*
 
 # Runtime data
 pids
@@ -17,21 +18,17 @@ coverage
 # nyc test coverage
 .nyc_output
 
-# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
-
 # node-waf configuration
 .lock-wscript
 
-# Compiled binary addons (http://nodejs.org/api/addons.html)
-build/Release
+# Compiled binary
+/lib/
 
 # Dependency directories
-node_modules
-jspm_packages
+node_modules/
 
 # Optional npm cache directory
 .npm
 
-# Optional REPL history
-.node_repl_history
+# ide
+.idea/
