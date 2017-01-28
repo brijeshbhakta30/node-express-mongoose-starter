@@ -1,43 +1,63 @@
-
 import gulp from 'gulp';
-import babel from 'gulp-babel';
+import gulpLoadPlugins from 'gulp-load-plugins';
+import path from 'path';
 import del from 'del';
-import { exec } from 'child_process';
-import eslint from 'gulp-eslint';
+import runSequence from 'run-sequence';
+
+const plugins = gulpLoadPlugins();
 
 const paths = {
-  allSrcJs: 'src/**/*.js',
-  gulpFile: 'gulpfile.babel.js',
-  libDir: 'lib',
+  js: ['./**/*.js', '!dist/**', '!node_modules/**'],
+  nonJs: ['./package.json', './.gitignore'],
+  tests: './server/tests/*.js'
 };
 
-gulp.task('lint', () =>
-  gulp.src([
-    paths.allSrcJs,
-    paths.gulpFile,
-  ])
-    .pipe(eslint())
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError())
+// Clean up dist and coverage directory
+gulp.task('clean', () =>
+  del(['dist/**', '!dist'])
 );
 
-gulp.task('clean', () => del(paths.libDir));
-
-gulp.task('build', ['lint', 'clean'], () =>
-  gulp.src(paths.allSrcJs)
-    .pipe(babel())
-    .pipe(gulp.dest(paths.libDir))
+// Copy non-js files to dist
+gulp.task('copy', () =>
+  gulp.src(paths.nonJs)
+    .pipe(plugins.newer('dist'))
+    .pipe(gulp.dest('dist'))
 );
 
-gulp.task('main', ['build'], (callback) => {
-  exec(`node ${paths.libDir}`, (error, stdout) => {
-    console.log(stdout); // eslint-disable-line no-console
-    return callback(error);
-  });
-});
+// Compile ES6 to ES5 and copy to dist
+gulp.task('babel', () =>
+  gulp.src([...paths.js, '!gulpfile.babel.js'], { base: '.' })
+    .pipe(plugins.newer('dist'))
+    .pipe(plugins.sourcemaps.init())
+    .pipe(plugins.babel())
+    .pipe(plugins.sourcemaps.write('.', {
+      includeContent: false,
+      sourceRoot(file) {
+        return path.relative(file.path, __dirname);
+      }
+    }))
+    .pipe(gulp.dest('dist'))
+);
 
-gulp.task('watch', () => {
-  gulp.watch(paths.allSrcJs, ['main']);
-});
+// Start server with restart on file changes
+gulp.task('nodemon', ['copy', 'babel'], () =>
+  plugins.nodemon({
+    script: path.join('dist', 'server', 'index.js'),
+    ext: 'js',
+    ignore: ['node_modules/**/*.js', 'dist/**/*.js'],
+    tasks: ['copy', 'babel']
+  })
+);
 
-gulp.task('default', ['watch', 'main']);
+// gulp serve for development
+gulp.task('serve', ['clean'], () => runSequence('nodemon'));
+
+// gulp build for production
+gulp.task('build', runSequence(['clean', 'babel', 'copy']));
+
+// default task: clean dist, compile js files and copy non-js files.
+gulp.task('default', ['clean'], () => {
+  runSequence(
+    ['copy', 'babel']
+  );
+});

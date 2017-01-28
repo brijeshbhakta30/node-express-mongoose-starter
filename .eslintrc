@@ -40,8 +40,8 @@
     "ecmaVersion": 6,
     "sourceType": "module"
   },
-  "extends": "airbnb-base",
-  "plugins": [
-    "import"
+  "extends": [
+    "eslint:recommended",
+    "airbnb-base"
   ]
 }
