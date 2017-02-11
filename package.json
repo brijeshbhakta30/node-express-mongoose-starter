@@ -61,7 +61,6 @@
     "lodash": "4.17.4",
     "method-override": "^2.3.5",
     "mongoose": "4.6.8",
-    "morgan": "1.7.0",
     "winston": "2.3.0"
   },
   "devDependencies": {

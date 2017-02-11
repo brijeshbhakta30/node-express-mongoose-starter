@@ -33,10 +33,10 @@ describe('## Book APIs', () => {
     isbn: Math.random().toString(36).substr(11, 13)
   };
 
-  describe('# POST /auth/register', () => {
+  describe('# POST /api/auth/register', () => {
     it('should create a new user for creating book', (done) => {
       request(app)
-        .post('/auth/register')
+        .post('/api/auth/register')
         .send(user)
         .expect(httpStatus.OK)
         .then((res) => {

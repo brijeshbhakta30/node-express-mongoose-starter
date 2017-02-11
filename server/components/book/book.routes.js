@@ -1,7 +1,7 @@
 import express from 'express';
 import validate from 'express-validation';
 import Joi from 'joi';
-import bookCtrl from '../../controllers/book.controller';
+import bookCtrl from './book.controller';
 
 const router = express.Router(); // eslint-disable-line new-cap
 const paramValidation = {

@@ -1,7 +1,7 @@
 import express from 'express';
 import validate from 'express-validation';
 import Joi from 'joi';
-import userCtrl from '../../controllers/user.controller';
+import userCtrl from './user.controller';
 
 const router = express.Router(); // eslint-disable-line new-cap
 const paramValidation = {

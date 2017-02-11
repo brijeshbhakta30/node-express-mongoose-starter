@@ -1,5 +1,4 @@
 import express from 'express';
-import logger from 'morgan';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import compress from 'compression';
@@ -8,18 +7,13 @@ import cors from 'cors';
 import httpStatus from 'http-status';
 import expressWinston from 'express-winston';
 import expressValidation from 'express-validation';
-import expressJwt from 'express-jwt';
 import helmet from 'helmet';
 import winstonInstance from './winston';
-import routes from '../routes/apiRoutes/index.route';
 import config from './env';
+import routes from '../components/routes';
 import APIError from '../helpers/APIError';
 
 const app = express();
-
-if (config.env === 'development') {
-  app.use(logger('dev'));
-}
 
 // parse body params and attache them to req.body
 app.use(bodyParser.json());
@@ -46,13 +40,6 @@ if (config.env === 'development') {
     colorStatus: true // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
   }));
 }
-
-app.use('/api', expressJwt({ secret: config.jwtSecret }));
-app.use('/api', (req, res, next) => {
-  const authorization = req.header('authorization');
-  res.locals.session = JSON.parse(new Buffer((authorization.split(' ')[1]).split('.')[1], 'base64').toString()); // eslint-disable-line no-param-reassign
-  next();
-});
 
 // mount all routes on / path
 app.use('/', routes);

@@ -36,7 +36,7 @@ describe('## Misc', () => {
   describe('# Error Handling', () => {
     it('should handle express validation error - email is required', (done) => {
       request(app)
-        .post('/auth/register')
+        .post('/api/auth/register')
         .send({
           password: faker.internet.password()
         })

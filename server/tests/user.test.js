@@ -26,10 +26,10 @@ describe('## User APIs', () => {
     lastName: faker.name.lastName(),
   };
 
-  describe('# POST /auth/register', () => {
+  describe('# POST /api/auth/register', () => {
     it('should create a new user', (done) => {
       request(app)
-        .post('/auth/register')
+        .post('/api/auth/register')
         .send(user)
         .expect(httpStatus.OK)
         .then((res) => {
