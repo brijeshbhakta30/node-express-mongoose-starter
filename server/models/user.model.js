@@ -86,7 +86,7 @@ UserSchema.statics = {
 
   /**
    * Get user by email
-   * @param {ObjectId} email- The email of user.
+   * @param {ObjectId} email - The email of user.
    * @returns {Promise<User, APIError>}
    */
   getByEmail(email) {
