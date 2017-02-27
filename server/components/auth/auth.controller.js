@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
 import APIError from '../../helpers/APIError';
-import User from '../../models/user.model';
+import User from '../user/user.model';
 import config from '../../config/env';
 
 /**

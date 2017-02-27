@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import APIError from '../../helpers/APIError';
-import Book from '../../models/book.model';
+import Book from './book.model';
 
 /**
  * Load book and append to req.

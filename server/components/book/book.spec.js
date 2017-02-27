@@ -3,7 +3,7 @@ import request from 'supertest-as-promised';
 import httpStatus from 'http-status';
 import chai, { expect } from 'chai';
 import faker from 'faker';
-import app from '../index';
+import app from '../../index';
 
 chai.config.includeStack = true;
 

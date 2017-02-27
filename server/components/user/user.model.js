@@ -2,7 +2,7 @@ import Promise from 'bluebird';
 import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 import bcrypt from 'bcrypt-nodejs';
-import APIError from '../helpers/APIError';
+import APIError from '../../helpers/APIError';
 
 const _ = require('lodash');
 
