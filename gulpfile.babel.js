@@ -14,7 +14,7 @@ const paths = {
 
 // Clean up dist and coverage directory
 gulp.task('clean', () =>
-  del(['dist/**', '!dist'])
+  del(['dist/**', '!dist'], { dryRun: true })
 );
 
 // Copy non-js files to dist
@@ -40,17 +40,17 @@ gulp.task('babel', () =>
 );
 
 // Start server with restart on file changes
-gulp.task('nodemon', ['copy', 'babel'], () =>
-  plugins.nodemon({
-    script: path.join('dist', 'server', 'index.js'),
-    ext: 'js',
-    ignore: ['node_modules/**/*.js', 'dist/**/*.js'],
-    tasks: ['copy', 'babel']
-  })
-);
+gulp.task('nodemon', () =>
+  runSequence('clean', 'copy', 'babel', () =>
+    plugins.nodemon({
+      script: path.join('dist', 'server', 'index.js'),
+      ext: 'js',
+      ignore: ['node_modules/**/*.js', 'dist/**/*.js'],
+      tasks: ['copy', 'babel']
+    })));
 
 // gulp serve for development
-gulp.task('serve', ['clean'], () => runSequence('nodemon'));
+gulp.task('serve', () => runSequence('nodemon'));
 
 // gulp build for production
 gulp.task('build', runSequence(['clean', 'babel', 'copy']));
