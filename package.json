@@ -18,7 +18,7 @@
     "dev": "nodemon --exec DEBUG=node* node_modules/babel-cli/bin/babel-node.js server",
     "build": "yarn build:server",
     "build:server": "node_modules/babel-cli/bin/babel.js server --out-dir dist/server",
-    "lint": "node_modules/eslint-watch/bin/esw *.js server config --color",
+    "lint": "esw *.js server config --color",
     "lint:watch": "yarn lint -- --watch",
     "test": "cross-env NODE_ENV=test babel-node node_modules/mocha/bin/_mocha -- --ui bdd --reporter spec --colors --compilers js:babel-core/register ./server/**/*.test.js",
     "test:watch": "yarn test -- --watch"
