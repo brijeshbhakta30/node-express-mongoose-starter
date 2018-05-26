@@ -1,18 +1,11 @@
-import jwt from 'jsonwebtoken';
-import httpStatus from 'http-status';
-import APIError from '../helpers/APIError';
-import User from '../models/user.model';
-import config from '../config/env';
+const jwt = require('jsonwebtoken');
+const httpStatus = require('http-status');
+const User = require('../user/user.model');
+const APIError = require('../../helpers/APIError');
+const config = require('../../config');
 
 /**
- * Returns jwt token if valid username and password is provided
- * @param req
- * @param res
- * @param next
- * @returns {*}
- */
-/**
- *  Returns jwt token and user details if valid email and password are provided
+ * Returns jwt token and user details if valid email and password are provided
  * @property {string} req.body.email - The email of user.
  * @property {string} req.body.password - The password of user.
  * @returns {token, User}
@@ -25,11 +18,11 @@ function login(req, res, next) {
         return next(err);
       }
       const token = jwt.sign(foundUser.safeModel(), config.jwtSecret, {
-        expiresIn: config.jwtExpiresIn
+        expiresIn: config.jwtExpiresIn,
       });
       return res.json({
         token,
-        user: foundUser.safeModel()
+        user: foundUser.safeModel(),
       });
     })
     .catch(err => next(new APIError(err.message, httpStatus.NOT_FOUND)));
@@ -57,14 +50,14 @@ function register(req, res, next) {
     })
     .then((savedUser) => {
       const token = jwt.sign(savedUser.safeModel(), config.jwtSecret, {
-        expiresIn: config.jwtExpiresIn
+        expiresIn: config.jwtExpiresIn,
       });
       return res.json({
         token,
-        user: savedUser.safeModel()
+        user: savedUser.safeModel(),
       });
     })
     .catch(e => next(e));
 }
 
-export default { login, register };
+module.exports = { login, register };

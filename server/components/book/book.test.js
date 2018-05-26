@@ -1,10 +1,11 @@
-import mongoose from 'mongoose';
-import request from 'supertest-as-promised';
-import httpStatus from 'http-status';
-import chai, { expect } from 'chai';
-import faker from 'faker';
-import app from '../index';
+const mongoose = require('mongoose');
+const request = require('supertest-as-promised');
+const httpStatus = require('http-status');
+const chai = require('chai');
+const faker = require('faker');
+const app = require('../../index');
 
+const expect = chai.expect;
 chai.config.includeStack = true;
 
 /**
@@ -29,14 +30,13 @@ describe('## Book APIs', () => {
   let book = {
     bookName: faker.name.findName(),
     author: faker.name.findName(),
-    // isbn: faker.random.alphaNumeric(11),
-    isbn: Math.random().toString(36).substr(11, 13)
+    isbn: faker.random.alphaNumeric(11),
   };
 
-  describe('# POST /auth/register', () => {
+  describe('# POST /api/auth/register', () => {
     it('should create a new user for creating book', (done) => {
       request(app)
-        .post('/auth/register')
+        .post('/api/auth/register')
         .send(user)
         .expect(httpStatus.OK)
         .then((res) => {
@@ -96,7 +96,7 @@ describe('## Book APIs', () => {
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.NOT_FOUND)
         .then((res) => {
-          expect(res.body.error).to.equal('No such book exists!');
+          expect(res.body.message).to.equal('No such book exists!');
           done();
         })
         .catch(done);
@@ -160,12 +160,12 @@ describe('## Book APIs', () => {
         .send({
           bookName: faker.name.findName(),
           author: faker.name.findName(),
-          owner: user._id
+          owner: user._id,
         })
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          expect(res.body.error).to.equal('"isbn" is required');
+          expect(res.body.message).to.equal('"isbn" is required');
           done();
         })
         .catch(done);

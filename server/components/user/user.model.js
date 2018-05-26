@@ -1,10 +1,9 @@
-import Promise from 'bluebird';
-import mongoose from 'mongoose';
-import httpStatus from 'http-status';
-import bcrypt from 'bcrypt-nodejs';
-import APIError from '../helpers/APIError';
-
+const Promise = require('bluebird');
+const mongoose = require('mongoose');
+const httpStatus = require('http-status');
+const bcrypt = require('bcrypt-nodejs');
 const _ = require('lodash');
+const APIError = require('../../helpers/APIError');
 
 /**
  * User Schema
@@ -13,39 +12,36 @@ const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
   firstName: {
     type: String,
-    required: false
+    required: false,
   },
   lastName: {
     type: String,
-    required: false
+    required: false,
   },
   isActive: {
     type: Boolean,
-    default: true
+    default: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 /**
+ * Add your
  * - pre-save hooks
  * - validations
  * - virtuals
  */
-/* UserSchema.pre('save', function (next) {
-  this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(8), null);
-  return next();
-}); */
 
 /**
  * Methods
@@ -58,9 +54,8 @@ UserSchema.method({
     return bcrypt.compareSync(password, this.password);
   },
   safeModel() {
-    // const { __v, password,  ...safeUser} = this.toObject();
     return _.omit(this.toObject(), ['password', '__v']);
-  }
+  },
 });
 
 /**
@@ -86,7 +81,7 @@ UserSchema.statics = {
 
   /**
    * Get user by email
-   * @param {ObjectId} email- The email of user.
+   * @param {ObjectId} email - The email of user.
    * @returns {Promise<User, APIError>}
    */
   getByEmail(email) {
@@ -110,13 +105,13 @@ UserSchema.statics = {
   list({ skip = 0, limit = 50 } = {}) {
     return this.find()
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
+      .skip(+skip)
+      .limit(+limit)
       .exec();
-  }
+  },
 };
 
 /**
  * @typedef User
  */
-export default mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User', UserSchema);

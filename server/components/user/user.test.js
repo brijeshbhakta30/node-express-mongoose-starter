@@ -1,10 +1,11 @@
-import mongoose from 'mongoose';
-import request from 'supertest-as-promised';
-import httpStatus from 'http-status';
-import chai, { expect } from 'chai';
-import faker from 'faker';
-import app from '../index';
+const mongoose = require('mongoose');
+const request = require('supertest-as-promised');
+const httpStatus = require('http-status');
+const faker = require('faker');
+const chai = require('chai');
+const app = require('../../index');
 
+const expect = chai.expect;
 chai.config.includeStack = true;
 
 /**
@@ -26,10 +27,10 @@ describe('## User APIs', () => {
     lastName: faker.name.lastName(),
   };
 
-  describe('# POST /auth/register', () => {
+  describe('# POST /api/auth/register', () => {
     it('should create a new user', (done) => {
       request(app)
-        .post('/auth/register')
+        .post('/api/auth/register')
         .send(user)
         .expect(httpStatus.OK)
         .then((res) => {
@@ -69,7 +70,7 @@ describe('## User APIs', () => {
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.NOT_FOUND)
         .then((res) => {
-          expect(res.body.error).to.equal('No such user exists!');
+          expect(res.body.message).to.equal('No such user exists!');
           done();
         })
         .catch(done);
@@ -109,6 +110,20 @@ describe('## User APIs', () => {
     });
   });
 
+  describe('# Error Handling', () => {
+    it('should handle mongoose CastError - Cast to ObjectId failed', (done) => {
+      request(app)
+        .get('/api/users/56z787zzz67fc')
+        .set({ Authorization: `Bearer ${user.token}` })
+        .expect(httpStatus.INTERNAL_SERVER_ERROR)
+        .then((res) => {
+          expect(res.body.message).to.equal('Internal Server Error');
+          done();
+        })
+        .catch(done);
+    });
+  });
+
   describe('# DELETE /api/users/', () => {
     it('should delete user', (done) => {
       request(app)
@@ -120,21 +135,6 @@ describe('## User APIs', () => {
           expect(res.body.firstName).to.equal(user.firstName);
           expect(res.body.lastName).to.equal(user.lastName);
           expect(res.body.password).to.equal(undefined); // Password should be removed.
-          done();
-        })
-        .catch(done);
-    });
-  });
-
-  describe('# Error Handling', () => {
-    it('should handle mongoose CastError - Cast to ObjectId failed', (done) => {
-      request(app)
-        .get('/api/users/56z787zzz67fc')
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.INTERNAL_SERVER_ERROR)
-        .then((res) => {
-          expect(res.body.error).to.contain('Cast to ObjectId failed');
-          expect(res.body.error).to.contain('56z787zzz67fc');
           done();
         })
         .catch(done);
