@@ -1,7 +1,7 @@
-import express from 'express';
-import validate from 'express-validation';
-import Joi from 'joi';
-import bookCtrl from './book.controller';
+const express = require('express');
+const validate = require('express-validation');
+const Joi = require('joi');
+const bookCtrl = require('./book.controller');
 
 const router = express.Router(); // eslint-disable-line new-cap
 const paramValidation = {
@@ -9,19 +9,19 @@ const paramValidation = {
     body: {
       bookName: Joi.string().required(),
       author: Joi.string().required(),
-      isbn: Joi.string().min(10).max(13).required()
-    }
+      isbn: Joi.string().min(10).max(13).required(),
+    },
   },
   updateBook: {
     params: {
-      bookId: Joi.string().required()
+      bookId: Joi.string().required(),
     },
     body: {
       bookName: Joi.string().required(),
       author: Joi.string().required(),
-      isbn: Joi.string().min(10).max(13).required()
+      isbn: Joi.string().min(10).max(13).required(),
     },
-  }
+  },
 };
 
 router.route('/')
@@ -44,4 +44,4 @@ router.route('/:bookId')
 /** Load book when API with bookId route parameter is hit */
 router.param('bookId', bookCtrl.load);
 
-export default router;
+module.exports = router;

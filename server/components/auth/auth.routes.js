@@ -1,23 +1,23 @@
-import express from 'express';
-import validate from 'express-validation';
-import Joi from 'joi';
-import authCtrl from './auth.controller';
+const express = require('express');
+const validate = require('express-validation');
+const Joi = require('joi');
+const authCtrl = require('./auth.controller');
 
 const router = express.Router(); // eslint-disable-line new-cap
 const paramValidation = {
   login: {
     body: {
       email: Joi.string().email().required(),
-      password: Joi.string().required()
-    }
+      password: Joi.string().required(),
+    },
   },
   registerUser: {
     body: {
       email: Joi.string().email().required(),
       password: Joi.string().required(),
       firstName: Joi.string(),
-      lastName: Joi.string()
-    }
+      lastName: Joi.string(),
+    },
   },
 };
 
@@ -29,4 +29,4 @@ router.route('/login')
 router.route('/register')
   .post(validate(paramValidation.registerUser), authCtrl.register);
 
-export default router;
+module.exports = router;

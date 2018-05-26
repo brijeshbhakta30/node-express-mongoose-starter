@@ -1,16 +1,17 @@
-import request from 'supertest-as-promised';
-import httpStatus from 'http-status';
-import chai, { expect } from 'chai';
-import faker from 'faker';
-import app from '../../index';
+const request = require('supertest-as-promised');
+const httpStatus = require('http-status');
+const faker = require('faker');
+const chai = require('chai');
+const app = require('../index');
 
+const expect = chai.expect;
 chai.config.includeStack = true;
 
 describe('## Misc', () => {
-  describe('# GET /health-check', () => {
+  describe('# GET /api/health-check', () => {
     it('should return OK', (done) => {
       request(app)
-        .get('/health-check')
+        .get('/api/health-check')
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.text).to.equal('OK');
@@ -20,13 +21,13 @@ describe('## Misc', () => {
     });
   });
 
-  describe('# GET /404', () => {
+  describe('# GET /api404', () => {
     it('should return 404 status', (done) => {
       request(app)
-        .get('/404')
+        .get('/api404')
         .expect(httpStatus.NOT_FOUND)
         .then((res) => {
-          expect(res.body.error).to.equal('API not found');
+          expect(res.body.message).to.equal('API Not Found');
           done();
         })
         .catch(done);
@@ -34,15 +35,15 @@ describe('## Misc', () => {
   });
 
   describe('# Error Handling', () => {
-    it('should handle express validation error - email is required', (done) => {
+    it('should handle express validation error - username is required', (done) => {
       request(app)
-        .post('/api/auth/register')
+        .post('/api/auth/login')
         .send({
-          password: faker.internet.password()
+          email: faker.internet.email(),
         })
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          expect(res.body.error).to.equal('"email" is required');
+          expect(res.body.message).to.equal('"password" is required');
           done();
         })
         .catch(done);

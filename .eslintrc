@@ -18,6 +18,7 @@
       2,
       "nofunc"
     ],
+    "linebreak-style": "off",
     // TODO: turn on later
     "comma-dangle": [
       0

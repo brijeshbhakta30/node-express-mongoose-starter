@@ -1,27 +1,23 @@
 {
   "name": "es7-node-starter",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A Boilerplate application for building REST APIs using express, mongoose in ES7",
-  "main": "index.js",
   "author": "Brijesh Bhakta <brijeshbhakta30@gmail.com>",
-  "license": "MIT",
+  "main": "server/index.js",
   "private": false,
+  "license": "MIT",
   "engines": {
-    "node": ">=4.6.x",
-    "npm": ">=2.15.x"
+    "node": ">=8.9.3",
+    "npm": ">=5.5.1"
   },
   "scripts": {
-    "prestart": "yarn build:server",
-    "precommit": "yarn lint && yarn test",
-    "prepush": "yarn lint && yarn test",
-    "start": "node dist/server/index.js",
-    "dev": "nodemon --exec DEBUG=node* node_modules/babel-cli/bin/babel-node.js server",
-    "build": "yarn build:server",
-    "build:server": "node_modules/babel-cli/bin/babel.js server --out-dir dist/server",
+    "start": "node server",
+    "start:debug": "cross-env DEBUG=node-server:* npm start",
     "lint": "esw *.js server config --color",
-    "lint:watch": "yarn lint -- --watch",
-    "test": "cross-env NODE_ENV=test babel-node node_modules/mocha/bin/_mocha -- --ui bdd --reporter spec --colors --compilers js:babel-core/register ./server/components/**/*.spec.js",
-    "test:watch": "yarn test -- --watch"
+    "lint:watch": "npm run lint -- --watch",
+    "precommit": "npm run lint && npm test",
+    "test": "cross-env NODE_ENV=test mocha --ui bdd --reporter spec --colors server --recursive",
+    "test:watch": "npm test -- --watch"
   },
   "repository": {
     "type": "git",
@@ -34,81 +30,47 @@
     "mongodb",
     "mongoose",
     "starter",
+    "starter code",
     "es6",
     "es7",
     "mocha",
     "REST",
     "API",
+    "REST API",
     "boilerplate"
   ],
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
-    "bluebird": "3.4.6",
-    "body-parser": "1.15.2",
-    "compression": "1.6.2",
+    "bluebird": "3.5.1",
+    "body-parser": "1.18.2",
+    "compression": "1.7.2",
     "cookie-parser": "1.4.3",
-    "cors": "2.8.1",
-    "debug": "^2.2.0",
-    "express": "4.14.0",
-    "express-jwt": "5.1.0",
-    "express-validation": "1.0.1",
-    "express-winston": "2.0.0",
-    "faker": "3.1.0",
-    "helmet": "3.1.0",
-    "http-status": "^0.2.0",
-    "joi": "9.2.0",
+    "cors": "2.8.4",
+    "debug": "2.4.5",
+    "dotenv": "4.0.0",
+    "express": "4.16.3",
+    "express-jwt": "5.3.1",
+    "express-validation": "1.0.2",
+    "faker": "4.1.0",
+    "helmet": "3.12.0",
+    "http-status": "1.0.1",
+    "joi": "10.6.0",
     "jsonwebtoken": "7.1.9",
-    "lodash": "4.17.4",
-    "method-override": "^2.3.5",
-    "mongoose": "4.6.8",
-    "winston": "2.3.0"
+    "lodash": "4.17.10",
+    "method-override": "2.3.10",
+    "mongoose": "4.7.4",
+    "morgan": "1.9.0"
   },
   "devDependencies": {
-    "babel-cli": "6.18.0",
-    "babel-core": "6.18.0",
-    "babel-plugin-add-module-exports": "0.2.1",
-    "babel-plugin-transform-object-assign": "6.8.0",
-    "babel-preset-latest": "^6.16.0",
-    "chai": "^3.4.1",
-    "commitizen": "^2.8.2",
-    "coveralls": "^2.11.6",
-    "cross-env": "3.1.4",
-    "cz-conventional-changelog": "1.2.0",
-    "del": "^2.2.0",
-    "eslint": "3.10.2",
+    "chai": "4.1.2",
+    "cross-env": "5.1.4",
+    "eslint": "3.16.1",
     "eslint-config-airbnb-base": "7.1.0",
     "eslint-plugin-import": "1.16.0",
     "eslint-watch": "2.1.14",
-    "gulp": "3.9.1",
-    "gulp-babel": "6.1.2",
-    "gulp-load-plugins": "^1.2.0",
-    "gulp-newer": "^1.1.0",
-    "gulp-nodemon": "^2.0.6",
-    "gulp-sourcemaps": "^1.6.0",
-    "gulp-util": "^3.0.7",
-    "husky": "^0.13.1",
-    "isparta": "4.0.0",
-    "mocha": "3.1.2",
-    "run-sequence": "^1.1.5",
-    "supertest": "2.0.1",
-    "supertest-as-promised": "4.0.2",
-    "validate-commit-msg": "^2.6.1"
-  },
-  "config": {
-    "ghooks": {
-      "pre-commit": "npm run lint && npm test"
-    },
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  },
-  "babel": {
-    "presets": [
-      "latest"
-    ],
-    "plugins": [
-      "add-module-exports",
-      "transform-object-assign"
-    ]
+    "husky": "0.14.3",
+    "mocha": "3.5.0",
+    "supertest": "3.0.0",
+    "supertest-as-promised": "4.0.2"
   }
 }

@@ -2,35 +2,26 @@
 
 A Boilerplate application for building REST APIs using express, mongoose in ES7
 
-This project uses [yarn](https://yarnpkg.com/) package manager.
-
-### Install yarn
-
-```sh
-npm install -g yarn
-```
-
 ### Install dependencies
 
 ```sh
-yarn
+npm i
 ```
 
 ### To run the project in development
 
 ```sh
-yarn dev
+npm run dev
 ```
-
-### To build the project for production environment
-
-```sh
-yarn build
-```
-
 
 ### Tests:
 
+##### For Test cases
 ```sh
-yarn test
+npm run test
+```
+
+##### For Linting files
+```sh
+npm run lint
 ```

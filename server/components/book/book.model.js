@@ -1,7 +1,7 @@
-import Promise from 'bluebird';
-import mongoose from 'mongoose';
-import httpStatus from 'http-status';
-import APIError from '../../helpers/APIError';
+const Promise = require('bluebird');
+const mongoose = require('mongoose');
+const httpStatus = require('http-status');
+const APIError = require('../../helpers/APIError');
 
 /**
  * Book Schema
@@ -9,28 +9,28 @@ import APIError from '../../helpers/APIError';
 const BookSchema = new mongoose.Schema({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   },
   bookName: {
     type: String,
-    required: true
+    required: true,
   },
   author: {
     type: String,
-    required: true
+    required: true,
   },
   isbn: {
     type: String,
-    required: false
+    required: false,
   },
   isActive: {
     type: Boolean,
-    default: true
+    default: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 /**
@@ -61,7 +61,7 @@ BookSchema.statics = {
         if (book) {
           return book;
         }
-        const err = new APIError('No such book exists!', httpStatus.NOT_FOUND);
+        const err = new APIError('No such book exists!', httpStatus.NOT_FOUND, true);
         return Promise.reject(err);
       });
   },
@@ -89,10 +89,10 @@ BookSchema.statics = {
       .limit(limit)
       .populate('owner')
       .exec();
-  }
+  },
 };
 
 /**
  * @typedef Book
  */
-export default mongoose.model('Book', BookSchema);
+module.exports = mongoose.model('Book', BookSchema);

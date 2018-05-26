@@ -1,17 +1,21 @@
-import express from 'express';
-import validate from 'express-validation';
-import Joi from 'joi';
-import userCtrl from './user.controller';
+const express = require('express');
+const validate = require('express-validation');
+const Joi = require('joi');
+const userCtrl = require('./user.controller');
 
 const router = express.Router(); // eslint-disable-line new-cap
+
 const paramValidation = {
   updateUser: {
     body: {
       email: Joi.string().required(),
       firstName: Joi.string(),
-      lastName: Joi.string()
-    }
-  }
+      lastName: Joi.string(),
+    },
+    params: {
+      userId: Joi.string().hex().required(),
+    },
+  },
 };
 
 router.route('/')
@@ -19,7 +23,7 @@ router.route('/')
   .get(userCtrl.list);
 
 router.route('/profile')
-/** GET /api/users/profile - Get profile of logged in user */
+  /** GET /api/users/profile - Get profile of logged in user */
   .get(userCtrl.getProfile);
 
 router.route('/:userId')
@@ -35,4 +39,4 @@ router.route('/:userId')
 /** Load user when API with userId route parameter is hit */
 router.param('userId', userCtrl.load);
 
-export default router;
+module.exports = router;

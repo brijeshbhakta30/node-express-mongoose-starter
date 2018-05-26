@@ -1,4 +1,4 @@
-import User from './user.model';
+const User = require('./user.model');
 
 /**
  * Load user and append to req.
@@ -29,6 +29,7 @@ function getProfile(req, res, next) {
     .then(user => res.json(user.safeModel()))
     .catch(e => next(e));
 }
+
 
 /**
  * Update existing user
@@ -72,4 +73,4 @@ function remove(req, res, next) {
     .catch(e => next(e));
 }
 
-export default { load, get, getProfile, update, list, remove };
+module.exports = { load, get, getProfile, update, list, remove };
