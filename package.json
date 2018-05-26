@@ -17,7 +17,9 @@
     "lint:watch": "npm run lint -- --watch",
     "precommit": "npm run lint && npm test",
     "test": "cross-env NODE_ENV=test mocha --ui bdd --reporter spec --colors server --recursive",
-    "test:watch": "npm test -- --watch"
+    "test:watch": "npm test -- --watch",
+    "test:coverage": "cross-env NODE_ENV=test istanbul cover ./node_modules/mocha/bin/_mocha -- --ui bdd --reporter spec --colors server --recursive",
+    "test:check-coverage": "npm run test:coverage && istanbul check-coverage"
   },
   "repository": {
     "type": "git",
@@ -69,6 +71,7 @@
     "eslint-plugin-import": "1.16.0",
     "eslint-watch": "2.1.14",
     "husky": "0.14.3",
+    "istanbul": "1.1.0-alpha.1",
     "mocha": "3.5.0",
     "supertest": "3.0.0",
     "supertest-as-promised": "4.0.2"
