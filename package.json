@@ -15,11 +15,12 @@
     "start:debug": "cross-env DEBUG=node-server:* npm start",
     "lint": "esw *.js server config --color",
     "lint:watch": "npm run lint -- --watch",
-    "precommit": "npm run lint && npm test",
     "test": "cross-env NODE_ENV=test mocha --ui bdd --reporter spec --colors server --recursive",
     "test:watch": "npm test -- --watch",
     "test:coverage": "cross-env NODE_ENV=test istanbul cover ./node_modules/mocha/bin/_mocha -- --ui bdd --reporter spec --colors server --recursive",
-    "test:check-coverage": "npm run test:coverage && istanbul check-coverage"
+    "test:check-coverage": "npm run test:coverage && istanbul check-coverage",
+    "precommit": "npm run lint && npm test",
+    "commitmsg": "commitlint -e $GIT_PARAMS"
   },
   "repository": {
     "type": "git",
@@ -64,6 +65,8 @@
     "morgan": "1.9.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "6.2.0",
+    "@commitlint/config-conventional": "6.1.3",
     "chai": "4.1.2",
     "cross-env": "5.1.4",
     "eslint": "3.16.1",
