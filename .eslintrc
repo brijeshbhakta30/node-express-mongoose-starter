@@ -19,9 +19,9 @@
       "nofunc"
     ],
     "linebreak-style": "off",
-    // TODO: turn on later
     "comma-dangle": [
-      0
+      "error",
+      "always-multiline"
     ],
     "import/no-extraneous-dependencies": [
       "error",
@@ -38,7 +38,7 @@
     "mocha": true
   },
   "parserOptions": {
-    "ecmaVersion": 6,
+    "ecmaVersion": 7,
     "sourceType": "module"
   },
   "extends": [
