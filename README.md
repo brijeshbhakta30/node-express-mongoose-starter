@@ -2,6 +2,7 @@
 
 A Boilerplate application for building REST APIs using express, mongoose in ES7
 
+This project validates the commit message by [this](https://github.com/marionebl/commitlint/tree/master/%40commitlint/config-conventional) convention
 ### Install dependencies
 
 ```sh
@@ -24,4 +25,9 @@ npm run test
 ##### For Linting files
 ```sh
 npm run lint
+```
+
+##### For Code Coverage
+```sh
+npm run test:coverage
 ```
