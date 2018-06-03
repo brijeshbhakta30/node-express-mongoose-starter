@@ -27,8 +27,14 @@ if (config.mongooseDebug) {
   });
 }
 
-server.listen(config.port, () => {
-  console.info(`server started on port ${config.port} (${config.env})`); // eslint-disable-line no-console
-});
+
+// module.parent check is required to support mocha watch
+// src: https://github.com/mochajs/mocha/issues/1912
+if (!module.parent) {
+  // listen on port config.port
+  server.listen(config.port, () => {
+    debug(`server started on port ${config.port} (${config.env})`);
+  });
+}
 
 module.exports = server;

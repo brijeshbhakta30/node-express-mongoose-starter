@@ -53,7 +53,7 @@ function create(req, res, next) {
  * @returns {Book}
  */
 function update(req, res, next) {
-  const book = req.book;
+  const { book } = req;
   book.bookName = req.body.bookName || book.bookName;
   book.author = req.body.author || book.author;
   book.isbn = req.body.isbn || book.isbn;
@@ -77,10 +77,17 @@ function list(req, res, next) {
  * @returns {Book}
  */
 function remove(req, res, next) {
-  const book = req.book;
+  const { book } = req;
   book.remove()
     .then(deletedBook => res.json(deletedBook))
     .catch(e => next(e));
 }
 
-module.exports = { load, get, create, update, list, remove };
+module.exports = {
+  load,
+  get,
+  create,
+  update,
+  list,
+  remove,
+};

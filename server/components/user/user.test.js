@@ -3,8 +3,9 @@ const request = require('supertest-as-promised');
 const httpStatus = require('http-status');
 const faker = require('faker');
 const chai = require('chai');
-const app = require('../../index');
+const server = require('../../index');
 
+/* eslint prefer-destructuring: 0 */
 const expect = chai.expect;
 chai.config.includeStack = true;
 
@@ -29,7 +30,7 @@ describe('## User APIs', () => {
 
   describe('# POST /api/auth/register', () => {
     it('should create a new user', (done) => {
-      request(app)
+      request(server)
         .post('/api/auth/register')
         .send(user)
         .expect(httpStatus.OK)
@@ -50,7 +51,7 @@ describe('## User APIs', () => {
 
   describe('# GET /api/users/:userId', () => {
     it('should get user details', (done) => {
-      request(app)
+      request(server)
         .get(`/api/users/${user._id}`)
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.OK)
@@ -65,7 +66,7 @@ describe('## User APIs', () => {
     });
 
     it('should report error with message - Not found, when user does not exists', (done) => {
-      request(app)
+      request(server)
         .get('/api/users/56c787ccc67fc16ccc1a5e92')
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.NOT_FOUND)
@@ -80,7 +81,7 @@ describe('## User APIs', () => {
   describe('# PUT /api/users/:userId', () => {
     it('should update user details', (done) => {
       user.firstName = faker.name.firstName();
-      request(app)
+      request(server)
         .put(`/api/users/${user._id}`)
         .set({ Authorization: `Bearer ${user.token}` })
         .send(user)
@@ -98,7 +99,7 @@ describe('## User APIs', () => {
 
   describe('# GET /api/users/', () => {
     it('should get all users', (done) => {
-      request(app)
+      request(server)
         .get('/api/users')
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.OK)
@@ -112,7 +113,7 @@ describe('## User APIs', () => {
 
   describe('# Error Handling', () => {
     it('should handle mongoose CastError - Cast to ObjectId failed', (done) => {
-      request(app)
+      request(server)
         .get('/api/users/56z787zzz67fc')
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.INTERNAL_SERVER_ERROR)
@@ -126,7 +127,7 @@ describe('## User APIs', () => {
 
   describe('# DELETE /api/users/', () => {
     it('should delete user', (done) => {
-      request(app)
+      request(server)
         .delete(`/api/users/${user._id}`)
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.OK)

@@ -3,8 +3,9 @@ const request = require('supertest-as-promised');
 const httpStatus = require('http-status');
 const chai = require('chai');
 const faker = require('faker');
-const app = require('../../index');
+const server = require('../../index');
 
+/* eslint prefer-destructuring: 0 */
 const expect = chai.expect;
 chai.config.includeStack = true;
 
@@ -35,7 +36,7 @@ describe('## Book APIs', () => {
 
   describe('# POST /api/auth/register', () => {
     it('should create a new user for creating book', (done) => {
-      request(app)
+      request(server)
         .post('/api/auth/register')
         .send(user)
         .expect(httpStatus.OK)
@@ -57,7 +58,7 @@ describe('## Book APIs', () => {
   describe('# POST /api/books', () => {
     it('should create a new book', (done) => {
       book.owner = user._id; // Setting created user as owner.
-      request(app)
+      request(server)
         .post('/api/books')
         .send(book)
         .set({ Authorization: `Bearer ${user.token}` })
@@ -76,7 +77,7 @@ describe('## Book APIs', () => {
 
   describe('# GET /api/books/:bookId', () => {
     it('should get book details', (done) => {
-      request(app)
+      request(server)
         .get(`/api/books/${book._id}`)
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.OK)
@@ -91,7 +92,7 @@ describe('## Book APIs', () => {
     });
 
     it('should report error with message - Not found, when book does not exists', (done) => {
-      request(app)
+      request(server)
         .get('/api/books/56c787ccc67fc16ccc1a5e92')
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.NOT_FOUND)
@@ -106,7 +107,7 @@ describe('## Book APIs', () => {
   describe('# PUT /api/books/:bookId', () => {
     it('should update book details', (done) => {
       book.bookName = faker.name.findName();
-      request(app)
+      request(server)
         .put(`/api/books/${book._id}`)
         .set({ Authorization: `Bearer ${user.token}` })
         .send(book)
@@ -124,7 +125,7 @@ describe('## Book APIs', () => {
 
   describe('# GET /api/books/', () => {
     it('should get all books', (done) => {
-      request(app)
+      request(server)
         .get('/api/books')
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.OK)
@@ -138,7 +139,7 @@ describe('## Book APIs', () => {
 
   describe('# DELETE /api/books/', () => {
     it('should delete book', (done) => {
-      request(app)
+      request(server)
         .delete(`/api/books/${book._id}`)
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.OK)
@@ -155,7 +156,7 @@ describe('## Book APIs', () => {
 
   describe('# Error Handling', () => {
     it('should handle express validation error - isbn is required', (done) => {
-      request(app)
+      request(server)
         .post('/api/books')
         .send({
           bookName: faker.name.findName(),
@@ -174,7 +175,7 @@ describe('## Book APIs', () => {
 
   describe('# DELETE /api/users/', () => {
     it('should delete user after done with books testing', (done) => {
-      request(app)
+      request(server)
         .delete(`/api/users/${user._id}`)
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.OK)

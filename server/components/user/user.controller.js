@@ -39,7 +39,7 @@ function getProfile(req, res, next) {
  * @returns {User}
  */
 function update(req, res, next) {
-  const user = req.user;
+  const { user } = req;
   user.email = req.body.email;
   user.firstName = req.body.firstName || user.firstName;
   user.lastName = req.body.lastName || user.lastName;
@@ -67,10 +67,17 @@ function list(req, res, next) {
  * @returns {User}
  */
 function remove(req, res, next) {
-  const user = req.user;
+  const { user } = req;
   user.remove()
     .then(deletedUser => res.json(deletedUser.safeModel()))
     .catch(e => next(e));
 }
 
-module.exports = { load, get, getProfile, update, list, remove };
+module.exports = {
+  load,
+  get,
+  getProfile,
+  update,
+  list,
+  remove,
+};
