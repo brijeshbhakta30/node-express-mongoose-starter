@@ -1,9 +1,9 @@
 const express = require('express');
-const expressJwt = require('express-jwt');
-const config = require('../config');
-const userRoutes = require('./user/user.routes');
-const authRoutes = require('./auth/auth.routes');
-const bookRoutes = require('./book/book.routes');
+const expressJwt = require('express-jwt/lib');
+const config = require('./config');
+const userRoutes = require('./modules/user/user.routes');
+const authRoutes = require('./modules/auth/auth.routes');
+const bookRoutes = require('./modules/book/book.routes');
 
 const router = express.Router(); // eslint-disable-line new-cap
 

@@ -1,8 +1,8 @@
-const request = require('supertest-as-promised');
+const request = require('supertest');
 const httpStatus = require('http-status');
 const faker = require('faker');
 const chai = require('chai');
-const server = require('../index');
+const server = require('../../index');
 
 /* eslint prefer-destructuring: 0 */
 const expect = chai.expect;

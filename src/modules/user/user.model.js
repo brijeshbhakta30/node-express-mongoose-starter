@@ -1,7 +1,7 @@
 const Promise = require('bluebird');
 const mongoose = require('mongoose');
 const httpStatus = require('http-status');
-const bcrypt = require('bcrypt-nodejs');
+const bcrypt = require('bcrypt');
 const _ = require('lodash');
 const APIError = require('../../helpers/APIError');
 

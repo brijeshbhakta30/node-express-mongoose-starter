@@ -1,4 +1,4 @@
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 // require and configure dotenv, will load vars in .env in PROCESS.ENV
 require('dotenv').config();

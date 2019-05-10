@@ -8,7 +8,7 @@ const cors = require('cors');
 const httpStatus = require('http-status');
 const expressValidation = require('express-validation');
 const helmet = require('helmet');
-const routes = require('./components/routes');
+const routes = require('./routes');
 const config = require('./config');
 const APIError = require('./helpers/APIError');
 
@@ -42,7 +42,8 @@ app.use((err, req, res, next) => {
     const unifiedErrorMessage = err.errors.map(error => error.messages.join('. ')).join(' and ');
     const error = new APIError(unifiedErrorMessage, err.status, true);
     return next(error);
-  } else if (!(err instanceof APIError)) {
+  }
+  if (!(err instanceof APIError)) {
     const apiError = new APIError(err.message, err.status, err.name === 'UnauthorizedError' ? true : err.isPublic);
     return next(apiError);
   }
@@ -57,7 +58,7 @@ app.use((req, res, next) => {
 
 // error handler, send stacktrace only during development
 app.use((err, req, res, next) => // eslint-disable-line no-unused-vars
-  res.status(err.status).json({
+  res.status(err.status).json({ // eslint-disable-line implicit-arrow-linebreak
     message: err.isPublic ? err.message : httpStatus[err.status],
     stack: config.env === 'development' ? err.stack : {},
   }));

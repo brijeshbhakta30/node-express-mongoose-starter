@@ -1,6 +1,6 @@
 const express = require('express');
 const validate = require('express-validation');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const bookCtrl = require('./book.controller');
 
 const router = express.Router(); // eslint-disable-line new-cap

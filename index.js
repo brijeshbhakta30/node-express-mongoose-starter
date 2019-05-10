@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 const util = require('util');
+const debug = require('debug')('node-server:index');
 
 // config should be imported before importing any other file
-const config = require('./config');
-const server = require('./server');
-
-const debug = require('debug')('node-server:index');
+const config = require('./src/config');
+const server = require('./src/server');
 
 // make bluebird default Promise
 Promise = require('bluebird'); // eslint-disable-line no-global-assign
@@ -15,7 +14,11 @@ mongoose.Promise = Promise;
 
 // connect to mongo db
 const mongoUri = config.mongo.host;
-mongoose.connect(mongoUri, { server: { socketOptions: { keepAlive: 1 } } });
+mongoose.connect(mongoUri, {
+  useCreateIndex: true,
+  useNewUrlParser: true,
+  promiseLibrary: Promise,
+});
 mongoose.connection.on('error', () => {
   throw new Error(`unable to connect to database: ${mongoUri}`);
 });
