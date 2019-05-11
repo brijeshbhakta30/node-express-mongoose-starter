@@ -1,13 +1,29 @@
+const path = require('path');
 const Joi = require('@hapi/joi');
+const dotenv = require('dotenv');
 
-// require and configure dotenv, will load vars in .env in PROCESS.ENV
-require('dotenv').config();
+const nodeEnvValidator = Joi.string()
+  .allow(['development', 'production', 'test', 'provision'])
+  .default('development');
+
+// getting environment to load relative .env file
+const { error: envError, value } = Joi.validate(process.env, Joi.object({
+  NODE_ENV: nodeEnvValidator,
+}).unknown().required());
+if (envError) {
+  throw new Error(`Environment validation error: ${envError.message}`);
+}
+
+// require and configure dotenv, will load vars in .env.* file in PROCESS.ENV
+const envFilePath = path.resolve(__dirname, '..', '..', `.env.${value.NODE_ENV}`);
+const envConfig = dotenv.config({ path: envFilePath });
+if (envConfig.error) {
+  throw new Error(`Environment file config error: ${envConfig.error}`);
+}
 
 // define validation for all the env vars
 const envVarsSchema = Joi.object({
-  NODE_ENV: Joi.string()
-    .allow(['development', 'production', 'test', 'provision'])
-    .default('development'),
+  NODE_ENV: nodeEnvValidator,
   PORT: Joi.number()
     .default(4040),
   MONGOOSE_DEBUG: Joi.boolean()
