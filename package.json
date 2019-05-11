@@ -16,12 +16,11 @@
     "lint": "esw *.js src --color",
     "lint:watch": "npm run lint -- --watch",
     "precommit": "npm run lint && npm test",
-    "start": "node src",
+    "start": "node index",
     "start:debug": "cross-env DEBUG=node-server:* npm start",
     "test": "cross-env NODE_ENV=test mocha --timeout 5000 --ui bdd --reporter spec --colors src --recursive --exit",
     "test:watch": "npm test -- --watch",
-    "test:coverage": "cross-env NODE_ENV=test istanbul cover ./node_modules/mocha/bin/_mocha -- --ui bdd --reporter spec --colors src --recursive",
-    "test:check-coverage": "npm run test:coverage && istanbul check-coverage"
+    "test:coverage": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text npm run test"
   },
   "repository": {
     "type": "git",
@@ -76,8 +75,8 @@
     "eslint-plugin-import": "2.17.2",
     "eslint-watch": "5.1.2",
     "husky": "2.2.0",
-    "istanbul": "0.4.5",
     "mocha": "6.1.4",
+    "nyc": "14.1.1",
     "supertest": "4.0.2"
   }
 }
