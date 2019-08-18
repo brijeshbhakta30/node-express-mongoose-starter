@@ -12,6 +12,7 @@
   },
   "scripts": {
     "dev": "cross-env NODE_ENV=development DEBUG=node-server:* nodemon index.js",
+    "dev:debug": "cross-env NODE_ENV=development DEBUG=node-server:* nodemon --inspect index.js",
     "lint": "esw *.js src --color",
     "lint:watch": "npm run lint -- --watch",
     "start": "node index",
