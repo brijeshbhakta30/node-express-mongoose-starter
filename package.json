@@ -1,7 +1,7 @@
 {
   "name": "node-express-mongoose-starter",
   "version": "2.0.0",
-  "description": "A Boilerplate application for building REST APIs using express, mongoose in ES7",
+  "description": "A Boilerplate application for building REST APIs using node, express and mongoose",
   "author": "Brijesh Bhakta <brijeshbhakta30@gmail.com>",
   "main": "index.js",
   "private": false,
