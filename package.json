@@ -1,5 +1,5 @@
 {
-  "name": "es7-node-starter",
+  "name": "node-express-mongoose-starter",
   "version": "2.0.0",
   "description": "A Boilerplate application for building REST APIs using express, mongoose in ES7",
   "author": "Brijesh Bhakta <brijeshbhakta30@gmail.com>",
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/brijeshbhakta30/node-express-mongoose-es7-starter.git"
+    "url": "https://github.com/brijeshbhakta30/node-express-mongoose-starter.git"
   },
   "keywords": [
     "express",
