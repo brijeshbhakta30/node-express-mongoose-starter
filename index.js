@@ -17,8 +17,11 @@ const mongoUri = config.mongo.host;
 mongoose.connect(mongoUri, {
   useCreateIndex: true,
   useNewUrlParser: true,
+  useUnifiedTopology: true,
   promiseLibrary: Promise,
+  useFindAndModify: false,
 });
+
 mongoose.connection.on('error', () => {
   throw new Error(`unable to connect to database: ${mongoUri}`);
 });
@@ -29,7 +32,6 @@ if (config.mongooseDebug) {
     debug(`${collectionName}.${method}`, util.inspect(query, false, 20), doc);
   });
 }
-
 
 // module.parent check is required to support mocha watch
 // src: https://github.com/mochajs/mocha/issues/1912
