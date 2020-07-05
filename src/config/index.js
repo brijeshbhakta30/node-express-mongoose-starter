@@ -1,15 +1,17 @@
 const path = require('path');
-const Joi = require('@hapi/joi');
+const { Joi } = require('express-validation');
 const dotenv = require('dotenv');
 
 const nodeEnvValidator = Joi.string()
-  .allow(['development', 'production', 'test', 'provision'])
+  .allow('development', 'production', 'test', 'provision')
   .default('development');
 
-// getting environment to load relative .env file
-const { error: envError, value } = Joi.validate(process.env, Joi.object({
+const nodeEnvSchema = Joi.object({
   NODE_ENV: nodeEnvValidator,
-}).unknown().required());
+}).unknown().required();
+
+// getting environment to load relative .env file
+const { error: envError, value } = nodeEnvSchema.validate(process.env);
 if (envError) {
   throw new Error(`Environment validation error: ${envError.message}`);
 }
@@ -43,7 +45,7 @@ const envVarsSchema = Joi.object({
 }).unknown()
   .required();
 
-const { error, value: envVars } = Joi.validate(process.env, envVarsSchema);
+const { error, value: envVars } = envVarsSchema.validate(process.env);
 if (error) {
   throw new Error(`Config validation error: ${error.message}`);
 }

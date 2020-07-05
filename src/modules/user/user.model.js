@@ -1,4 +1,3 @@
-const Promise = require('bluebird');
 const mongoose = require('mongoose');
 const httpStatus = require('http-status');
 const bcrypt = require('bcrypt');
@@ -74,8 +73,7 @@ UserSchema.statics = {
         if (user) {
           return user;
         }
-        const err = new APIError('No such user exists!', httpStatus.NOT_FOUND, true);
-        return Promise.reject(err);
+        throw new APIError('No such user exists!', httpStatus.NOT_FOUND);
       });
   },
 
@@ -91,8 +89,7 @@ UserSchema.statics = {
         if (user) {
           return user;
         }
-        const err = new APIError('No such user exists!', httpStatus.NOT_FOUND, true);
-        return Promise.reject(err);
+        throw new APIError('No such user exists!', httpStatus.NOT_FOUND);
       });
   },
 

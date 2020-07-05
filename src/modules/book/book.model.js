@@ -1,4 +1,3 @@
-const Promise = require('bluebird');
 const mongoose = require('mongoose');
 const httpStatus = require('http-status');
 const APIError = require('../../helpers/APIError');
@@ -61,8 +60,7 @@ BookSchema.statics = {
         if (book) {
           return book;
         }
-        const err = new APIError('No such book exists!', httpStatus.NOT_FOUND, true);
-        return Promise.reject(err);
+        throw new APIError('No such book exists!', httpStatus.NOT_FOUND);
       });
   },
 

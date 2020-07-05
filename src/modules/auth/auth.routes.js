@@ -1,23 +1,23 @@
 const express = require('express');
-const validate = require('express-validation');
-const Joi = require('@hapi/joi');
+const { Joi } = require('express-validation');
 const authCtrl = require('./auth.controller');
+const { validate } = require('../../helpers');
 
 const router = express.Router(); // eslint-disable-line new-cap
 const paramValidation = {
   login: {
-    body: {
+    body: Joi.object({
       email: Joi.string().email().required(),
       password: Joi.string().required(),
-    },
+    }),
   },
   registerUser: {
-    body: {
+    body: Joi.object({
       email: Joi.string().email().required(),
       password: Joi.string().required(),
       firstName: Joi.string(),
       lastName: Joi.string(),
-    },
+    }),
   },
 };
 

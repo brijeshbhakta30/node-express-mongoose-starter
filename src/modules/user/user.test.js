@@ -3,6 +3,7 @@ const request = require('supertest');
 const httpStatus = require('http-status');
 const faker = require('faker');
 const chai = require('chai');
+const _ = require('lodash');
 const server = require('../../../index');
 
 /* eslint prefer-destructuring: 0 */
@@ -81,10 +82,11 @@ describe('## User APIs', () => {
   describe('# PUT /api/users/:userId', () => {
     it('should update user details', (done) => {
       user.firstName = faker.name.firstName();
+      const payload = _.pick(user, ['firstName', 'lastName', 'email']);
       request(server)
         .put(`/api/users/${user._id}`)
         .set({ Authorization: `Bearer ${user.token}` })
-        .send(user)
+        .send(payload)
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.email).to.equal(user.email);
@@ -113,12 +115,13 @@ describe('## User APIs', () => {
 
   describe('# Error Handling', () => {
     it('should handle mongoose CastError - Cast to ObjectId failed', (done) => {
+      const invalidId = '56z787zzz67fc';
       request(server)
-        .get('/api/users/56z787zzz67fc')
+        .get(`/api/users/${invalidId}`)
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.INTERNAL_SERVER_ERROR)
         .then((res) => {
-          expect(res.body.message).to.equal('Internal Server Error');
+          expect(res.body.message).to.equal(`Cast to ObjectId failed for value "${invalidId}" at path "_id" for model "User"`);
           done();
         })
         .catch(done);

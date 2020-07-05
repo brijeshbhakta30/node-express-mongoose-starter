@@ -3,6 +3,7 @@ const request = require('supertest');
 const httpStatus = require('http-status');
 const chai = require('chai');
 const faker = require('faker');
+const _ = require('lodash');
 const server = require('../../../index');
 
 /* eslint prefer-destructuring: 0 */
@@ -57,14 +58,13 @@ describe('## Book APIs', () => {
 
   describe('# POST /api/books', () => {
     it('should create a new book', (done) => {
-      book.owner = user._id; // Setting created user as owner.
       request(server)
         .post('/api/books')
         .send(book)
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body.owner).to.equal(book.owner);
+          expect(res.body.owner).to.equal(user._id);
           expect(res.body.bookName).to.equal(book.bookName);
           expect(res.body.author).to.equal(book.author);
           expect(res.body.isbn).to.equal(book.isbn);
@@ -107,10 +107,11 @@ describe('## Book APIs', () => {
   describe('# PUT /api/books/:bookId', () => {
     it('should update book details', (done) => {
       book.bookName = faker.name.findName();
+      const payload = _.pick(book, ['bookName', 'isbn', 'author']);
       request(server)
         .put(`/api/books/${book._id}`)
         .set({ Authorization: `Bearer ${user.token}` })
-        .send(book)
+        .send(payload)
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.owner._id).to.equal(user._id);
@@ -161,7 +162,6 @@ describe('## Book APIs', () => {
         .send({
           bookName: faker.name.findName(),
           author: faker.name.findName(),
-          owner: user._id,
         })
         .set({ Authorization: `Bearer ${user.token}` })
         .expect(httpStatus.BAD_REQUEST)

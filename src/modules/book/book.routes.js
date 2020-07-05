@@ -1,26 +1,26 @@
 const express = require('express');
-const validate = require('express-validation');
-const Joi = require('@hapi/joi');
+const { Joi } = require('express-validation');
 const bookCtrl = require('./book.controller');
+const { validate } = require('../../helpers');
 
 const router = express.Router(); // eslint-disable-line new-cap
 const paramValidation = {
   createBook: {
-    body: {
+    body: Joi.object({
       bookName: Joi.string().required(),
       author: Joi.string().required(),
       isbn: Joi.string().min(10).max(13).required(),
-    },
+    }),
   },
   updateBook: {
-    params: {
+    params: Joi.object({
       bookId: Joi.string().required(),
-    },
-    body: {
+    }),
+    body: Joi.object({
       bookName: Joi.string().required(),
       author: Joi.string().required(),
       isbn: Joi.string().min(10).max(13).required(),
-    },
+    }),
   },
 };
 

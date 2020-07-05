@@ -6,7 +6,7 @@ const compress = require('compression');
 const methodOverride = require('method-override');
 const cors = require('cors');
 const httpStatus = require('http-status');
-const expressValidation = require('express-validation');
+const { ValidationError } = require('express-validation');
 const helmet = require('helmet');
 const routes = require('./routes');
 const config = require('./config');
@@ -37,14 +37,15 @@ app.use('/api', routes);
 
 // if error is not an instanceOf APIError, convert it.
 app.use((err, req, res, next) => {
-  if (err instanceof expressValidation.ValidationError) {
-    // validation error contains errors which is an array of error each containing message[]
-    const unifiedErrorMessage = err.errors.map(error => error.messages.join('. ')).join(' and ');
-    const error = new APIError(unifiedErrorMessage, err.status, true);
+  if (err instanceof ValidationError) {
+    // validation error contains details object which has error message attached to error property.
+    const allErrors = err.details.map((pathErrors) => Object.values(pathErrors).join(', '));
+    const unifiedErrorMessage = allErrors.join(', ').replace(/, ([^,]*)$/, ' and $1');
+    const error = new APIError(unifiedErrorMessage, err.statusCode);
     return next(error);
   }
   if (!(err instanceof APIError)) {
-    const apiError = new APIError(err.message, err.status, err.name === 'UnauthorizedError' ? true : err.isPublic);
+    const apiError = new APIError(err.message, err.status);
     return next(apiError);
   }
   return next(err);
@@ -52,7 +53,7 @@ app.use((err, req, res, next) => {
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  const err = new APIError('API Not Found', httpStatus.NOT_FOUND, true);
+  const err = new APIError('API Not Found', httpStatus.NOT_FOUND);
   return next(err);
 });
 

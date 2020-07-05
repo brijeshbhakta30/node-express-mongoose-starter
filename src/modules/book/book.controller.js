@@ -11,7 +11,7 @@ function load(req, res, next, id) {
       req.book = book; // eslint-disable-line no-param-reassign
       return next();
     })
-    .catch(e => next(e));
+    .catch((e) => next(e));
 }
 
 /**
@@ -37,12 +37,12 @@ function create(req, res, next) {
     .exec()
     .then((foundBook) => {
       if (foundBook) {
-        return Promise.reject(new APIError('Book name must be unique', httpStatus.CONFLICT, true));
+        throw new APIError('Book name must be unique', httpStatus.CONFLICT, true);
       }
       return book.save();
     })
-    .then(savedBook => res.json(savedBook))
-    .catch(e => next(e));
+    .then((savedBook) => res.json(savedBook))
+    .catch((e) => next(e));
 }
 
 /**
@@ -58,8 +58,8 @@ function update(req, res, next) {
   book.author = req.body.author || book.author;
   book.isbn = req.body.isbn || book.isbn;
   book.save()
-    .then(savedBook => res.json(savedBook))
-    .catch(e => next(new APIError(e.message, httpStatus.CONFLICT, true)));
+    .then((savedBook) => res.json(savedBook))
+    .catch((e) => next(new APIError(e.message, httpStatus.CONFLICT)));
 }
 
 /**
@@ -68,8 +68,8 @@ function update(req, res, next) {
  */
 function list(req, res, next) {
   Book.list()
-    .then(books => res.json(books))
-    .catch(e => next(e));
+    .then((books) => res.json(books))
+    .catch((e) => next(e));
 }
 
 /**
@@ -79,8 +79,8 @@ function list(req, res, next) {
 function remove(req, res, next) {
   const { book } = req;
   book.remove()
-    .then(deletedBook => res.json(deletedBook))
-    .catch(e => next(e));
+    .then((deletedBook) => res.json(deletedBook))
+    .catch((e) => next(e));
 }
 
 module.exports = {

@@ -17,15 +17,13 @@ function login(req, res, next) {
         const err = new APIError('User email and password combination do not match', httpStatus.UNAUTHORIZED);
         return next(err);
       }
-      const token = jwt.sign(foundUser.safeModel(), config.jwtSecret, {
-        expiresIn: config.jwtExpiresIn,
-      });
+      const token = generateJWT(foundUser.safeModel());
       return res.json({
         token,
         user: foundUser.safeModel(),
       });
     })
-    .catch(err => next(new APIError(err.message, httpStatus.NOT_FOUND)));
+    .catch((err) => next(new APIError(err.message, httpStatus.NOT_FOUND)));
 }
 
 /**
@@ -43,21 +41,30 @@ function register(req, res, next) {
     .exec()
     .then((foundUser) => {
       if (foundUser) {
-        return Promise.reject(new APIError('Email must be unique', httpStatus.CONFLICT));
+        throw new APIError('Email must be unique', httpStatus.CONFLICT);
       }
       user.password = user.generatePassword(req.body.password);
       return user.save();
     })
     .then((savedUser) => {
-      const token = jwt.sign(savedUser.safeModel(), config.jwtSecret, {
-        expiresIn: config.jwtExpiresIn,
-      });
+      const token = generateJWT(savedUser.safeModel());
       return res.json({
         token,
         user: savedUser.safeModel(),
       });
     })
-    .catch(e => next(e));
+    .catch((e) => next(e));
+}
+
+/**
+ * Generates JWT for the payload
+ * @param {*} payload - Payload to be signed in JWT
+ */
+function generateJWT(payload) {
+  return jwt.sign(payload, config.jwtSecret, {
+    expiresIn: config.jwtExpiresIn,
+    algorithm: 'HS256',
+  });
 }
 
 module.exports = { login, register };
