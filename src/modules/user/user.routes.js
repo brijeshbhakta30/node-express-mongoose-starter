@@ -3,7 +3,7 @@ const { Joi } = require('express-validation');
 const userCtrl = require('./user.controller');
 const { validate } = require('../../helpers');
 
-const router = express.Router(); // eslint-disable-line new-cap
+const router = express.Router();
 
 const paramValidation = {
   updateUser: {

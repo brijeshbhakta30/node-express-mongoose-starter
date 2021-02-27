@@ -5,7 +5,7 @@ const userRoutes = require('./modules/user/user.routes');
 const authRoutes = require('./modules/auth/auth.routes');
 const bookRoutes = require('./modules/book/book.routes');
 
-const router = express.Router(); // eslint-disable-line new-cap
+const router = express.Router();
 
 /** GET /health-check - Check service health */
 router.get('/health-check', (req, res) => res.send('OK'));

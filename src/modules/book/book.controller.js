@@ -8,7 +8,7 @@ const APIError = require('../../helpers/APIError');
 function load(req, res, next, id) {
   Book.get(id)
     .then((book) => {
-      req.book = book; // eslint-disable-line no-param-reassign
+      req.book = book;
       return next();
     })
     .catch((e) => next(e));

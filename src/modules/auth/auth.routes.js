@@ -3,7 +3,8 @@ const { Joi } = require('express-validation');
 const authCtrl = require('./auth.controller');
 const { validate } = require('../../helpers');
 
-const router = express.Router(); // eslint-disable-line new-cap
+const router = express.Router();
+
 const paramValidation = {
   login: {
     body: Joi.object({

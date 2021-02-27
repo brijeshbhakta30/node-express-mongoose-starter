@@ -3,7 +3,8 @@ const { Joi } = require('express-validation');
 const bookCtrl = require('./book.controller');
 const { validate } = require('../../helpers');
 
-const router = express.Router(); // eslint-disable-line new-cap
+const router = express.Router();
+
 const paramValidation = {
   createBook: {
     body: Joi.object({
