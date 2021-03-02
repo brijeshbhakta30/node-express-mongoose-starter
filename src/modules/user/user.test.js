@@ -66,6 +66,20 @@ describe('## User APIs', () => {
         .catch(done);
     });
 
+    it('should get user details when token is passed in query', (done) => {
+      request(server)
+        .get(`/api/users/${user._id}?token=${user.token}`)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.email).to.equal(user.email);
+          expect(res.body.firstName).to.equal(user.firstName);
+          expect(res.body.lastName).to.equal(user.lastName);
+          expect(res.body.password).to.equal(undefined); // Password should be removed.
+          done();
+        })
+        .catch(done);
+    });
+
     it('should report error with message - Not found, when user does not exists', (done) => {
       request(server)
         .get('/api/users/56c787ccc67fc16ccc1a5e92')
