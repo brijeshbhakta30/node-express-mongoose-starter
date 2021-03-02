@@ -3,13 +3,14 @@ const User = require('./user.model');
 /**
  * Load user and append to req.
  */
-function load(req, res, next, id) {
-  User.get(id)
-    .then((user) => {
-      req.user = user;
-      return next();
-    })
-    .catch((e) => next(e));
+async function load(req, res, next, id) {
+  try {
+    const user = await User.get(id);
+    req.user = user;
+    return next();
+  } catch (error) {
+    return next(error);
+  }
 }
 
 /**
@@ -24,10 +25,13 @@ function get(req, res) {
  * Get user profile of logged in user
  * @returns {User}
  */
-function getProfile(req, res, next) {
-  User.get(res.locals.session._id)
-    .then((user) => res.json(user.safeModel()))
-    .catch((e) => next(e));
+async function getProfile(req, res, next) {
+  try {
+    const user = await User.get(res.locals.session._id);
+    return res.json(user.safeModel());
+  } catch (error) {
+    return next(error);
+  }
 }
 
 /**
@@ -37,15 +41,18 @@ function getProfile(req, res, next) {
  * @property {string} req.body.lastName - The lastName of user.
  * @returns {User}
  */
-function update(req, res, next) {
+async function update(req, res, next) {
   const { user } = req;
   user.email = req.body.email;
   user.firstName = req.body.firstName || user.firstName;
   user.lastName = req.body.lastName || user.lastName;
 
-  user.save()
-    .then((savedUser) => res.json(savedUser.safeModel()))
-    .catch((e) => next(e));
+  try {
+    const savedUser = await user.save();
+    return res.json(savedUser.safeModel());
+  } catch (error) {
+    return next(error);
+  }
 }
 
 /**
@@ -54,22 +61,28 @@ function update(req, res, next) {
  * @property {number} req.query.limit - Limit number of users to be returned.
  * @returns {User[]}
  */
-function list(req, res, next) {
+async function list(req, res, next) {
   const { limit = 50, skip = 0 } = req.query;
-  User.list({ limit, skip })
-    .then((users) => res.json(users))
-    .catch((e) => next(e));
+  try {
+    const users = await User.list({ limit, skip });
+    return res.json(users);
+  } catch (error) {
+    return next(error);
+  }
 }
 
 /**
  * Delete user.
  * @returns {User}
  */
-function remove(req, res, next) {
+async function remove(req, res, next) {
   const { user } = req;
-  user.remove()
-    .then((deletedUser) => res.json(deletedUser.safeModel()))
-    .catch((e) => next(e));
+  try {
+    const deletedUser = await user.remove();
+    return res.json(deletedUser.safeModel());
+  } catch (error) {
+    return next(error);
+  }
 }
 
 module.exports = {
