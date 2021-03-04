@@ -66,15 +66,12 @@ UserSchema.statics = {
    * @param {ObjectId} id - The objectId of user.
    * @returns {Promise<User, APIError>}
    */
-  get(id) {
-    return this.findById(id)
-      .exec()
-      .then((user) => {
-        if (user) {
-          return user;
-        }
-        throw new APIError('No such user exists!', httpStatus.NOT_FOUND);
-      });
+  async get(id) {
+    const user = await this.findById(id).exec();
+    if (!user) {
+      throw new APIError('No such user exists!', httpStatus.NOT_FOUND);
+    }
+    return user;
   },
 
   /**
@@ -82,15 +79,12 @@ UserSchema.statics = {
    * @param {ObjectId} email - The email of user.
    * @returns {Promise<User, APIError>}
    */
-  getByEmail(email) {
-    return this.findOne({ email })
-      .exec()
-      .then((user) => {
-        if (user) {
-          return user;
-        }
-        throw new APIError('No such user exists!', httpStatus.NOT_FOUND);
-      });
+  async getByEmail(email) {
+    const user = await this.findOne({ email }).exec();
+    if (!user) {
+      throw new APIError('No such user exists!', httpStatus.NOT_FOUND);
+    }
+    return user;
   },
 
   /**
