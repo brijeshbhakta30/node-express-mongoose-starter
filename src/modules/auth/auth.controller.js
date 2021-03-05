@@ -10,20 +10,20 @@ const config = require('../../config');
  * @property {string} req.body.password - The password of user.
  * @returns {token, User}
  */
-function login(req, res, next) {
-  User.getByEmail(req.body.email)
-    .then((foundUser) => {
-      if (!foundUser.validPassword(req.body.password)) {
-        const err = new APIError('User email and password combination do not match', httpStatus.UNAUTHORIZED);
-        return next(err);
-      }
-      const token = generateJWT(foundUser.safeModel());
-      return res.json({
-        token,
-        user: foundUser.safeModel(),
-      });
-    })
-    .catch((err) => next(new APIError(err.message, httpStatus.NOT_FOUND)));
+async function login(req, res, next) {
+  try {
+    const foundUser = await User.getByEmail(req.body.email);
+    if (!foundUser.validPassword(req.body.password)) {
+      throw new APIError('User email and password combination do not match', httpStatus.UNAUTHORIZED);
+    }
+    const token = generateJWT(foundUser.safeModel());
+    return res.json({
+      token,
+      user: foundUser.safeModel(),
+    });
+  } catch (error) {
+    return next(new APIError(error.message, error.status || httpStatus.INTERNAL_SERVER_ERROR));
+  }
 }
 
 /**
@@ -34,26 +34,23 @@ function login(req, res, next) {
  * @property {string} req.body.lastName - The lastName of user.
  * @returns {User}
  */
-function register(req, res, next) {
+async function register(req, res, next) {
   const user = new User(req.body);
-
-  User.findOne({ email: req.body.email })
-    .exec()
-    .then((foundUser) => {
-      if (foundUser) {
-        throw new APIError('Email must be unique', httpStatus.CONFLICT);
-      }
-      user.password = user.generatePassword(req.body.password);
-      return user.save();
-    })
-    .then((savedUser) => {
-      const token = generateJWT(savedUser.safeModel());
-      return res.json({
-        token,
-        user: savedUser.safeModel(),
-      });
-    })
-    .catch((e) => next(e));
+  try {
+    const foundUser = await User.findOne({ email: req.body.email }).exec();
+    if (foundUser) {
+      throw new APIError('Email must be unique', httpStatus.CONFLICT);
+    }
+    user.password = user.generatePassword(req.body.password);
+    const savedUser = await user.save();
+    const token = generateJWT(savedUser.safeModel());
+    return res.json({
+      token,
+      user: savedUser.safeModel(),
+    });
+  } catch (error) {
+    return next(new APIError(error.message, error.status || httpStatus.INTERNAL_SERVER_ERROR));
+  }
 }
 
 /**
