@@ -22,9 +22,11 @@ after((done) => {
 });
 
 describe('## User APIs', () => {
+  const email = faker.internet.email();
+  const password = faker.internet.password();
   let user = {
-    email: faker.internet.email(),
-    password: faker.internet.password(),
+    email,
+    password,
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
   };
@@ -44,6 +46,57 @@ describe('## User APIs', () => {
           expect(res.body.user.password).to.equal(undefined); // Password should be removed.
           user = res.body.user;
           user.token = res.body.token;
+          done();
+        })
+        .catch(done);
+    });
+    it('should not create a new user as duplicate email', (done) => {
+      const registerPayload = {
+        email,
+        password,
+        firstName: faker.name.firstName(),
+        lastName: faker.name.lastName(),
+      };
+      request(server)
+        .post('/api/auth/register')
+        .send(registerPayload)
+        .expect(httpStatus.CONFLICT)
+        .then((res) => {
+          expect(res.body.message).to.equal('Email must be unique');
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  describe('# POST /api/auth/login', () => {
+    it('should login the new user', (done) => {
+      const loginPayload = { email, password };
+      request(server)
+        .post('/api/auth/login')
+        .send(loginPayload)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.token).to.not.equal('');
+          expect(res.body.token).to.not.equal(undefined);
+          expect(res.body.user.email).to.equal(user.email);
+          expect(res.body.user.firstName).to.equal(user.firstName);
+          expect(res.body.user.lastName).to.equal(user.lastName);
+          expect(res.body.user.password).to.equal(undefined); // Password should be removed.
+          user = res.body.user;
+          user.token = res.body.token;
+          done();
+        })
+        .catch(done);
+    });
+    it('should error when wrong password is provided', (done) => {
+      const loginPayload = { email, password: faker.random.alphaNumeric(8) };
+      request(server)
+        .post('/api/auth/login')
+        .send(loginPayload)
+        .expect(httpStatus.UNAUTHORIZED)
+        .then((res) => {
+          expect(res.body.message).to.equal('User email and password combination do not match');
           done();
         })
         .catch(done);
