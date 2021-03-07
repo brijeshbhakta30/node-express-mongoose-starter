@@ -52,16 +52,12 @@ BookSchema.statics = {
    * @param {ObjectId} id - The objectId of book.
    * @returns {Promise<Book, APIError>}
    */
-  get(id) {
-    return this.findById(id)
-      .populate('owner')
-      .exec()
-      .then((book) => {
-        if (book) {
-          return book;
-        }
-        throw new APIError('No such book exists!', httpStatus.NOT_FOUND);
-      });
+  async get(id) {
+    const book = await this.findById(id).populate('owner').exec();
+    if (!book) {
+      throw new APIError('No such book exists!', httpStatus.NOT_FOUND);
+    }
+    return book;
   },
 
   /**
