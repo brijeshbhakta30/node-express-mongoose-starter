@@ -195,6 +195,22 @@ describe('## User APIs', () => {
     });
   });
 
+  describe('# GET /api/users/profile', () => {
+    it('should get user profile', (done) => {
+      request(server)
+        .get('/api/users/profile')
+        .set({ Authorization: `Bearer ${user.token}` })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.email).to.equal(user.email);
+          expect(res.body.firstName).to.equal(user.firstName);
+          expect(res.body.lastName).to.equal(user.lastName);
+          expect(res.body.password).to.equal(undefined); // Password should be removed.
+          done();
+        })
+        .catch(done);
+    });
+  });
   describe('# DELETE /api/users/', () => {
     it('should delete user', (done) => {
       request(server)
@@ -206,6 +222,28 @@ describe('## User APIs', () => {
           expect(res.body.firstName).to.equal(user.firstName);
           expect(res.body.lastName).to.equal(user.lastName);
           expect(res.body.password).to.equal(undefined); // Password should be removed.
+          done();
+        })
+        .catch(done);
+    });
+    it('should throw 404 error if the user was already deleted', (done) => {
+      request(server)
+        .delete(`/api/users/${user._id}`)
+        .set({ Authorization: `Bearer ${user.token}` })
+        .expect(httpStatus.NOT_FOUND)
+        .then((res) => {
+          expect(res.body.message).to.be.equal('No such user exists!');
+          done();
+        })
+        .catch(done);
+    });
+    it('should throw 404 error when requesting user profile when user is deleted', (done) => {
+      request(server)
+        .get('/api/users/profile')
+        .set({ Authorization: `Bearer ${user.token}` })
+        .expect(httpStatus.NOT_FOUND)
+        .then((res) => {
+          expect(res.body.message).to.be.equal('No such user exists!');
           done();
         })
         .catch(done);
