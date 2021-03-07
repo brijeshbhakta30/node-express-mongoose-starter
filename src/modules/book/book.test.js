@@ -28,9 +28,9 @@ describe('## Book APIs', () => {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
   };
-
+  const bookName = faker.name.findName();
   let book = {
-    bookName: faker.name.findName(),
+    bookName,
     author: faker.name.findName(),
     isbn: faker.random.alphaNumeric(11),
   };
@@ -69,6 +69,23 @@ describe('## Book APIs', () => {
           expect(res.body.author).to.equal(book.author);
           expect(res.body.isbn).to.equal(book.isbn);
           book = res.body;
+          done();
+        })
+        .catch(done);
+    });
+    it('should throw error for creating a book with same name', (done) => {
+      const payloadBook = {
+        bookName,
+        author: faker.name.findName(),
+        isbn: faker.random.alphaNumeric(11),
+      };
+      request(server)
+        .post('/api/books')
+        .send(payloadBook)
+        .set({ Authorization: `Bearer ${user.token}` })
+        .expect(httpStatus.CONFLICT)
+        .then((res) => {
+          expect(res.body.message).to.equal('Book name must be unique');
           done();
         })
         .catch(done);
@@ -149,6 +166,17 @@ describe('## Book APIs', () => {
           expect(res.body.bookName).to.equal(book.bookName);
           expect(res.body.author).to.equal(book.author);
           expect(res.body.isbn).to.equal(book.isbn);
+          done();
+        })
+        .catch(done);
+    });
+    it('should throw error for deleting the book which was deleted already', (done) => {
+      request(server)
+        .delete(`/api/books/${book._id}`)
+        .set({ Authorization: `Bearer ${user.token}` })
+        .expect(httpStatus.NOT_FOUND)
+        .then((res) => {
+          expect(res.body.message).to.equal('No such book exists!');
           done();
         })
         .catch(done);
