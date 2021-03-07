@@ -32,10 +32,11 @@ function get(req, res) {
  */
 async function create(req, res, next) {
   const book = new Book(req.body);
-  book.owner = res.locals.session._id;
+  const owner = res.locals.session._id;
+  book.owner = owner;
 
   try {
-    const foundBook = await Book.findOne({ bookName: book.bookName }).exec();
+    const foundBook = await Book.findOne({ bookName: book.bookName, owner }).exec();
     if (foundBook) {
       throw new APIError('Book name must be unique', httpStatus.CONFLICT, true);
     }
