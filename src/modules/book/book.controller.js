@@ -5,13 +5,14 @@ const APIError = require('../../helpers/APIError');
 /**
  * Load book and append to req.
  */
-function load(req, res, next, id) {
-  Book.get(id)
-    .then((book) => {
-      req.book = book;
-      return next();
-    })
-    .catch((e) => next(e));
+async function load(req, res, next, id) {
+  try {
+    const book = await Book.get(id);
+    req.book = book;
+    return next();
+  } catch (error) {
+    return next(error);
+  }
 }
 
 /**
@@ -29,20 +30,20 @@ function get(req, res) {
  * @property {string} req.body.isbn- The isbn of book.
  * @returns {Book}
  */
-function create(req, res, next) {
+async function create(req, res, next) {
   const book = new Book(req.body);
   book.owner = res.locals.session._id;
 
-  Book.findOne({ bookName: book.bookName })
-    .exec()
-    .then((foundBook) => {
-      if (foundBook) {
-        throw new APIError('Book name must be unique', httpStatus.CONFLICT, true);
-      }
-      return book.save();
-    })
-    .then((savedBook) => res.json(savedBook))
-    .catch((e) => next(e));
+  try {
+    const foundBook = await Book.findOne({ bookName: book.bookName }).exec();
+    if (foundBook) {
+      throw new APIError('Book name must be unique', httpStatus.CONFLICT, true);
+    }
+    const savedBook = await book.save();
+    return res.json(savedBook);
+  } catch (error) {
+    return next(new APIError(error.message, error.status || httpStatus.INTERNAL_SERVER_ERROR));
+  }
 }
 
 /**
@@ -52,35 +53,44 @@ function create(req, res, next) {
  * @property {string} req.body.isbn- The isbn of book.
  * @returns {Book}
  */
-function update(req, res, next) {
+async function update(req, res, next) {
   const { book } = req;
   book.bookName = req.body.bookName || book.bookName;
   book.author = req.body.author || book.author;
   book.isbn = req.body.isbn || book.isbn;
-  book.save()
-    .then((savedBook) => res.json(savedBook))
-    .catch((e) => next(new APIError(e.message, httpStatus.CONFLICT)));
+  try {
+    const savedBook = await book.save();
+    return res.json(savedBook);
+  } catch (error) {
+    return next(error);
+  }
 }
 
 /**
  * Get book list.
  * @returns {Book[]}
  */
-function list(req, res, next) {
-  Book.list()
-    .then((books) => res.json(books))
-    .catch((e) => next(e));
+async function list(req, res, next) {
+  try {
+    const books = await Book.list();
+    return res.json(books);
+  } catch (error) {
+    return next(error);
+  }
 }
 
 /**
  * Delete book.
  * @returns {Book}
  */
-function remove(req, res, next) {
+async function remove(req, res, next) {
   const { book } = req;
-  book.remove()
-    .then((deletedBook) => res.json(deletedBook))
-    .catch((e) => next(e));
+  try {
+    const deletedBook = await book.remove();
+    return res.json(deletedBook);
+  } catch (error) {
+    return next(error);
+  }
 }
 
 module.exports = {
