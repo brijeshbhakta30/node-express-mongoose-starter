@@ -22,7 +22,7 @@ async function login(req, res, next) {
       user: foundUser.safeModel(),
     });
   } catch (error) {
-    return next(new APIError(error.message, error.status || httpStatus.INTERNAL_SERVER_ERROR));
+    return next(error);
   }
 }
 
@@ -49,7 +49,7 @@ async function register(req, res, next) {
       user: savedUser.safeModel(),
     });
   } catch (error) {
-    return next(new APIError(error.message, error.status || httpStatus.INTERNAL_SERVER_ERROR));
+    return next(error);
   }
 }
 

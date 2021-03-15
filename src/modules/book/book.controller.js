@@ -43,7 +43,7 @@ async function create(req, res, next) {
     const savedBook = await book.save();
     return res.json(savedBook);
   } catch (error) {
-    return next(new APIError(error.message, error.status || httpStatus.INTERNAL_SERVER_ERROR));
+    return next(error);
   }
 }
 
