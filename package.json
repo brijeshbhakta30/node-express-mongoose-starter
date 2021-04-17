@@ -1,6 +1,6 @@
 {
   "name": "node-express-mongoose-starter",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A Boilerplate application for building REST APIs using node, express and mongoose",
   "author": "Brijesh Bhakta <brijeshbhakta30@gmail.com>",
   "main": "index.js",
@@ -40,7 +40,9 @@
     "REST",
     "API",
     "REST API",
-    "boilerplate"
+    "boilerplate",
+    "promises",
+    "async await"
   ],
   "dependencies": {
     "bcrypt": "5.0.1",
@@ -61,7 +63,7 @@
     "jsonwebtoken": "8.5.1",
     "lodash": "4.17.21",
     "method-override": "3.0.0",
-    "mongoose": "5.11.19",
+    "mongoose": "5.12.4",
     "morgan": "1.10.0"
   },
   "devDependencies": {
