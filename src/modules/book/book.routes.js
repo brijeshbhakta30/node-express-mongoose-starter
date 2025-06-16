@@ -1,11 +1,13 @@
 const express = require('express');
 const { Joi } = require('express-validation');
-const bookCtrl = require('./book.controller');
-const { validate } = require('../../helpers');
 
+const { validate } = require('../../helpers');
+const bookCtrl = require('./book.controller');
+
+// eslint-disable-next-line new-cap
 const router = express.Router();
 
-const paramValidation = {
+const parameterValidation = {
   createBook: {
     body: Joi.object({
       bookName: Joi.string().required(),
@@ -30,17 +32,17 @@ router.route('/')
   .get(bookCtrl.list)
 
   /** POST /api/books - Create new book */
-  .post(validate(paramValidation.createBook), bookCtrl.create);
+  .post(validate(parameterValidation.createBook), bookCtrl.create);
 
 router.route('/:bookId')
   /** GET /api/books/:bookId - Get book */
   .get(bookCtrl.get)
 
   /** PUT /api/books/:bookId - Update book */
-  .put(validate(paramValidation.updateBook), bookCtrl.update)
+  .put(validate(parameterValidation.updateBook), bookCtrl.update)
 
   /** DELETE /api/books/:bookId - Delete book */
-  .delete(bookCtrl.remove);
+  .delete(bookCtrl.deleteOne);
 
 /** Load book when API with bookId route parameter is hit */
 router.param('bookId', bookCtrl.load);

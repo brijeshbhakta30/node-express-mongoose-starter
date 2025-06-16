@@ -1,6 +1,7 @@
-const httpStatus = require('http-status');
-const Book = require('./book.model');
+const { status } = require('http-status');
+
 const APIError = require('../../helpers/APIError');
+const Book = require('./book.model');
 
 /**
  * Load book and append to req.
@@ -32,14 +33,15 @@ function get(req, res) {
  */
 async function create(req, res, next) {
   const book = new Book(req.body);
-  const owner = res.locals.session._id;
+  const owner = req.auth._id;
   book.owner = owner;
 
   try {
     const foundBook = await Book.findOne({ bookName: book.bookName, owner }).exec();
     if (foundBook) {
-      throw new APIError('Book name must be unique', httpStatus.CONFLICT, true);
+      throw new APIError('Book name must be unique', status.CONFLICT, true);
     }
+
     const savedBook = await book.save();
     return res.json(savedBook);
   } catch (error) {
@@ -84,11 +86,11 @@ async function list(req, res, next) {
  * Delete book.
  * @returns {Book}
  */
-async function remove(req, res, next) {
+async function deleteOne(req, res, next) {
   const { book } = req;
   try {
-    const deletedBook = await book.remove();
-    return res.json(deletedBook);
+    await book.deleteOne();
+    return res.json(book);
   } catch (error) {
     return next(error);
   }
@@ -100,5 +102,5 @@ module.exports = {
   create,
   update,
   list,
-  remove,
+  deleteOne,
 };
