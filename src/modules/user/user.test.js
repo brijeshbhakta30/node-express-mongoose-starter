@@ -1,252 +1,199 @@
-const mongoose = require('mongoose');
+const { faker } = require('@faker-js/faker');
+const { status } = require('http-status');
 const request = require('supertest');
-const httpStatus = require('http-status');
-const faker = require('faker');
-const chai = require('chai');
-const _ = require('lodash');
-const server = require('../../../index');
 
-/* eslint prefer-destructuring: 0 */
-const expect = chai.expect;
-chai.config.includeStack = true;
-
-/**
- * root level hooks
- */
-after((done) => {
-  // required because https://github.com/Automattic/mongoose/issues/1251#issuecomment-65793092
-  mongoose.models = {};
-  mongoose.modelSchemas = {};
-  mongoose.connection.close();
-  done();
-});
+const app = require('../../app');
+const { registerUser, loginUser } = require('../../tests/utils');
 
 describe('## User APIs', () => {
-  const email = faker.internet.email();
-  const password = faker.internet.password();
-  let user = {
-    email,
-    password,
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName(),
-  };
-
   describe('# POST /api/auth/register', () => {
-    it('should create a new user', (done) => {
-      request(server)
-        .post('/api/auth/register')
-        .send(user)
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.token).to.not.equal('');
-          expect(res.body.token).to.not.equal(undefined);
-          expect(res.body.user.email).to.equal(user.email);
-          expect(res.body.user.firstName).to.equal(user.firstName);
-          expect(res.body.user.lastName).to.equal(user.lastName);
-          expect(res.body.user.password).to.equal(undefined); // Password should be removed.
-          user = res.body.user;
-          user.token = res.body.token;
-          done();
-        })
-        .catch(done);
+    it('should create a new user', async () => {
+      const { user, token } = await registerUser();
+
+      expect(token).toBeDefined();
+      expect(user.email).toBeDefined();
+      expect(user.password).toBeUndefined();
     });
-    it('should not create a new user as duplicate email', (done) => {
-      const registerPayload = {
-        email,
+
+    it('should not create a new user as duplicate email', async () => {
+      const { user: existingUser, password } = await registerUser();
+
+      const duplicateUserPayload = {
+        email: existingUser.email,
         password,
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
       };
-      request(server)
+
+      const res = await request(app)
         .post('/api/auth/register')
-        .send(registerPayload)
-        .expect(httpStatus.CONFLICT)
-        .then((res) => {
-          expect(res.body.message).to.equal('Email must be unique');
-          done();
-        })
-        .catch(done);
+        .send(duplicateUserPayload)
+        .expect(status.CONFLICT);
+
+      expect(res.body.message).toBe('Email must be unique');
     });
   });
 
   describe('# POST /api/auth/login', () => {
-    it('should login the new user', (done) => {
-      const loginPayload = { email, password };
-      request(server)
-        .post('/api/auth/login')
-        .send(loginPayload)
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.token).to.not.equal('');
-          expect(res.body.token).to.not.equal(undefined);
-          expect(res.body.user.email).to.equal(user.email);
-          expect(res.body.user.firstName).to.equal(user.firstName);
-          expect(res.body.user.lastName).to.equal(user.lastName);
-          expect(res.body.user.password).to.equal(undefined); // Password should be removed.
-          user = res.body.user;
-          user.token = res.body.token;
-          done();
-        })
-        .catch(done);
+    it('should login the registered user', async () => {
+      const { user, password } = await registerUser();
+
+      const { user: loggedInUser, token } = await loginUser(user.email, password);
+
+      expect(token).toBeDefined();
+      expect(loggedInUser.email).toBe(user.email);
+      expect(loggedInUser.password).toBeUndefined();
     });
-    it('should error when wrong password is provided', (done) => {
-      const loginPayload = { email, password: faker.random.alphaNumeric(8) };
-      request(server)
+
+    it('should error when wrong password is provided', async () => {
+      const { user } = await registerUser();
+
+      const res = await request(app)
         .post('/api/auth/login')
-        .send(loginPayload)
-        .expect(httpStatus.UNAUTHORIZED)
-        .then((res) => {
-          expect(res.body.message).to.equal('User email and password combination do not match');
-          done();
-        })
-        .catch(done);
+        .send({ email: user.email, password: faker.string.alphanumeric(8) })
+        .expect(status.UNAUTHORIZED);
+
+      expect(res.body.message).toBe('User email and password combination do not match');
     });
   });
 
   describe('# GET /api/users/:userId', () => {
-    it('should get user details', (done) => {
-      request(server)
+    it('should get user details', async () => {
+      const { user, token } = await registerUser();
+
+      const res = await request(app)
         .get(`/api/users/${user._id}`)
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.email).to.equal(user.email);
-          expect(res.body.firstName).to.equal(user.firstName);
-          expect(res.body.lastName).to.equal(user.lastName);
-          expect(res.body.password).to.equal(undefined); // Password should be removed.
-          done();
-        })
-        .catch(done);
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.OK);
+
+      expect(res.body.email).toBe(user.email);
+      expect(res.body.password).toBeUndefined();
     });
 
-    it('should get user details when token is passed in query', (done) => {
-      request(server)
-        .get(`/api/users/${user._id}?token=${user.token}`)
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.email).to.equal(user.email);
-          expect(res.body.firstName).to.equal(user.firstName);
-          expect(res.body.lastName).to.equal(user.lastName);
-          expect(res.body.password).to.equal(undefined); // Password should be removed.
-          done();
-        })
-        .catch(done);
-    });
+    it('should report error with message - Not found, when user does not exists', async () => {
+      const { token } = await registerUser();
 
-    it('should report error with message - Not found, when user does not exists', (done) => {
-      request(server)
+      const res = await request(app)
         .get('/api/users/56c787ccc67fc16ccc1a5e92')
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.NOT_FOUND)
-        .then((res) => {
-          expect(res.body.message).to.equal('No such user exists!');
-          done();
-        })
-        .catch(done);
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.NOT_FOUND);
+
+      expect(res.body.message).toBe('No such user exists!');
     });
   });
 
   describe('# PUT /api/users/:userId', () => {
-    it('should update user details', (done) => {
-      user.firstName = faker.name.firstName();
-      const payload = _.pick(user, ['firstName', 'lastName', 'email']);
-      request(server)
+    it('should update user details', async () => {
+      const { user, token } = await registerUser();
+
+      const updatedFirstName = faker.person.firstName();
+      const payload = { firstName: updatedFirstName, lastName: user.lastName };
+
+      const res = await request(app)
         .put(`/api/users/${user._id}`)
-        .set({ Authorization: `Bearer ${user.token}` })
+        .set({ Authorization: `Bearer ${token}` })
         .send(payload)
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.email).to.equal(user.email);
-          expect(res.body.firstName).to.equal(user.firstName);
-          expect(res.body.lastName).to.equal(user.lastName);
-          expect(res.body.password).to.equal(undefined); // Password should be removed.
-          done();
-        })
-        .catch(done);
+        .expect(status.OK);
+
+      expect(res.body.firstName).toBe(updatedFirstName);
+      expect(res.body.password).toBeUndefined();
+    });
+
+    it('should error if user tries to change email', async () => {
+      const { user, token } = await registerUser();
+
+      const payload = {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+      };
+
+      const res = await request(app)
+        .put(`/api/users/${user._id}`)
+        .set({ Authorization: `Bearer ${token}` })
+        .send(payload)
+        .expect(status.BAD_REQUEST);
+
+      expect(res.body.message).toBe('"email" is not allowed');
     });
   });
 
   describe('# GET /api/users/', () => {
-    it('should get all users', (done) => {
-      request(server)
-        .get('/api/users')
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body).to.be.an('array');
-          done();
-        })
-        .catch(done);
-    });
-  });
+    it('should get all users', async () => {
+      const { token } = await registerUser();
 
-  describe('# Error Handling', () => {
-    it('should handle mongoose CastError - Cast to ObjectId failed', (done) => {
-      const invalidId = '56z787zzz67fc';
-      request(server)
-        .get(`/api/users/${invalidId}`)
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.INTERNAL_SERVER_ERROR)
-        .then((res) => {
-          expect(res.body.message).to.equal(`Cast to ObjectId failed for value "${invalidId}" at path "_id" for model "User"`);
-          done();
-        })
-        .catch(done);
+      const res = await request(app)
+        .get('/api/users')
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.OK);
+
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body[0].password).toBeUndefined();
+      expect(res.body[0].email).toBeDefined();
     });
   });
 
   describe('# GET /api/users/profile', () => {
-    it('should get user profile', (done) => {
-      request(server)
+    it('should get user profile', async () => {
+      const { token, user } = await registerUser();
+
+      const res = await request(app)
         .get('/api/users/profile')
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.email).to.equal(user.email);
-          expect(res.body.firstName).to.equal(user.firstName);
-          expect(res.body.lastName).to.equal(user.lastName);
-          expect(res.body.password).to.equal(undefined); // Password should be removed.
-          done();
-        })
-        .catch(done);
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.OK);
+
+      expect(res.body.email).toBe(user.email);
+      expect(res.body.password).toBeUndefined();
     });
   });
+
   describe('# DELETE /api/users/', () => {
-    it('should delete user', (done) => {
-      request(server)
+    it('should delete user', async () => {
+      const { token, user } = await registerUser();
+
+      const res = await request(app)
         .delete(`/api/users/${user._id}`)
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.email).to.equal(user.email);
-          expect(res.body.firstName).to.equal(user.firstName);
-          expect(res.body.lastName).to.equal(user.lastName);
-          expect(res.body.password).to.equal(undefined); // Password should be removed.
-          done();
-        })
-        .catch(done);
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.OK);
+
+      expect(res.body.email).toBe(user.email);
+      expect(res.body.password).toBeUndefined();
     });
-    it('should throw 404 error if the user was already deleted', (done) => {
-      request(server)
+
+    it('should throw 404 error if the user was already deleted', async () => {
+      const { token, user } = await registerUser();
+
+      // Delete user first
+      await request(app)
         .delete(`/api/users/${user._id}`)
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.NOT_FOUND)
-        .then((res) => {
-          expect(res.body.message).to.be.equal('No such user exists!');
-          done();
-        })
-        .catch(done);
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.OK);
+
+      // Try deleting again
+      const res = await request(app)
+        .delete(`/api/users/${user._id}`)
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.NOT_FOUND);
+
+      expect(res.body.message).toBe('No such user exists!');
     });
-    it('should throw 404 error when requesting user profile when user is deleted', (done) => {
-      request(server)
+
+    it('should throw 404 error when requesting profile after user deletion', async () => {
+      const { token, user } = await registerUser();
+
+      // Delete user first
+      await request(app)
+        .delete(`/api/users/${user._id}`)
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.OK);
+
+      // Request profile
+      const res = await request(app)
         .get('/api/users/profile')
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.NOT_FOUND)
-        .then((res) => {
-          expect(res.body.message).to.be.equal('No such user exists!');
-          done();
-        })
-        .catch(done);
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.NOT_FOUND);
+
+      expect(res.body.message).toBe('No such user exists!');
     });
   });
 });

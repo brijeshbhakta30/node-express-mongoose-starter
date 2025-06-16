@@ -1,5 +1,5 @@
-/* eslint-disable max-classes-per-file */
-const httpStatus = require('http-status');
+/* eslint-disable unicorn/filename-case */
+const { status: httpStatus } = require('http-status');
 
 /**
  * @extends Error

@@ -1,5 +1,6 @@
+const { status } = require('http-status');
 const mongoose = require('mongoose');
-const httpStatus = require('http-status');
+
 const APIError = require('../../helpers/APIError');
 
 /**
@@ -55,8 +56,9 @@ BookSchema.statics = {
   async get(id) {
     const book = await this.findById(id).populate('owner').exec();
     if (!book) {
-      throw new APIError('No such book exists!', httpStatus.NOT_FOUND);
+      throw new APIError('No such book exists!', status.NOT_FOUND);
     }
+
     return book;
   },
 

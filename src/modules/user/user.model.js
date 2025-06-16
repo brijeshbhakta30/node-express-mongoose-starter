@@ -1,7 +1,8 @@
-const mongoose = require('mongoose');
-const httpStatus = require('http-status');
 const bcrypt = require('bcrypt');
+const { status } = require('http-status');
 const _ = require('lodash');
+const mongoose = require('mongoose');
+
 const APIError = require('../../helpers/APIError');
 
 /**
@@ -47,6 +48,7 @@ const UserSchema = new mongoose.Schema({
  */
 UserSchema.method({
   generatePassword(password) {
+    // eslint-disable-next-line unicorn/no-null
     return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
   },
   validPassword(password) {
@@ -69,8 +71,9 @@ UserSchema.statics = {
   async get(id) {
     const user = await this.findById(id).exec();
     if (!user) {
-      throw new APIError('No such user exists!', httpStatus.NOT_FOUND);
+      throw new APIError('No such user exists!', status.NOT_FOUND);
     }
+
     return user;
   },
 
@@ -82,8 +85,9 @@ UserSchema.statics = {
   async getByEmail(email) {
     const user = await this.findOne({ email }).exec();
     if (!user) {
-      throw new APIError('No such user exists!', httpStatus.NOT_FOUND);
+      throw new APIError('No such user exists!', status.NOT_FOUND);
     }
+
     return user;
   },
 
@@ -96,8 +100,8 @@ UserSchema.statics = {
   list({ skip = 0, limit = 50 } = {}) {
     return this.find()
       .sort({ createdAt: -1 })
-      .skip(+skip)
-      .limit(+limit)
+      .skip(Number(skip))
+      .limit(Number(limit))
       .exec();
   },
 };

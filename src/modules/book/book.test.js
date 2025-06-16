@@ -1,220 +1,210 @@
-const mongoose = require('mongoose');
+const { faker } = require('@faker-js/faker');
+const { status } = require('http-status');
 const request = require('supertest');
-const httpStatus = require('http-status');
-const chai = require('chai');
-const faker = require('faker');
-const _ = require('lodash');
-const server = require('../../../index');
 
-/* eslint prefer-destructuring: 0 */
-const expect = chai.expect;
-chai.config.includeStack = true;
+const app = require('../../app');
+const { registerUser } = require('../../tests/utils');
 
-/**
- * root level hooks
- */
-after((done) => {
-  // required because https://github.com/Automattic/mongoose/issues/1251#issuecomment-65793092
-  mongoose.models = {};
-  mongoose.modelSchemas = {};
-  mongoose.connection.close();
-  done();
-});
+async function createBook(token, overrides = {}) {
+  const bookPayload = {
+    bookName: faker.book.title(),
+    author: faker.book.author(),
+    isbn: faker.string.alphanumeric(11),
+    ...overrides,
+  };
+
+  const res = await request(app)
+    .post('/api/books')
+    .set({ Authorization: `Bearer ${token}` })
+    .send(bookPayload)
+    .expect(status.OK);
+
+  return res.body;
+}
 
 describe('## Book APIs', () => {
-  let user = {
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName(),
-  };
-  const bookName = faker.name.findName();
-  let book = {
-    bookName,
-    author: faker.name.findName(),
-    isbn: faker.random.alphaNumeric(11),
-  };
-
   describe('# POST /api/auth/register', () => {
-    it('should create a new user for creating book', (done) => {
-      request(server)
-        .post('/api/auth/register')
-        .send(user)
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.token).to.not.equal('');
-          expect(res.body.token).to.not.equal(undefined);
-          expect(res.body.user.email).to.equal(user.email);
-          expect(res.body.user.firstName).to.equal(user.firstName);
-          expect(res.body.user.lastName).to.equal(user.lastName);
-          expect(res.body.user.password).to.equal(undefined); // Password should be removed.
-          user = res.body.user;
-          user.token = res.body.token;
-          done();
-        })
-        .catch(done);
+    it('should create a new user for creating books', async () => {
+      const { user, token } = await registerUser();
+
+      expect(token).toBeDefined();
+      expect(user.email).toBeDefined();
+      expect(user.password).toBeUndefined();
     });
   });
 
   describe('# POST /api/books', () => {
-    it('should create a new book', (done) => {
-      request(server)
-        .post('/api/books')
-        .send(book)
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.owner).to.equal(user._id);
-          expect(res.body.bookName).to.equal(book.bookName);
-          expect(res.body.author).to.equal(book.author);
-          expect(res.body.isbn).to.equal(book.isbn);
-          book = res.body;
-          done();
-        })
-        .catch(done);
-    });
-    it('should throw error for creating a book with same name', (done) => {
-      const payloadBook = {
-        bookName,
-        author: faker.name.findName(),
-        isbn: faker.random.alphaNumeric(11),
+    it('should create a new book', async () => {
+      const { token, user } = await registerUser();
+
+      const bookData = {
+        bookName: faker.book.title(),
+        author: faker.book.author(),
+        isbn: faker.string.alphanumeric(11),
       };
-      request(server)
+
+      const book = await createBook(token, bookData);
+
+      expect(book.owner).toBe(user._id);
+      expect(book.bookName).toBe(bookData.bookName);
+      expect(book.author).toBe(bookData.author);
+      expect(book.isbn).toBe(bookData.isbn);
+    });
+
+    it('should throw error for creating a book with same name', async () => {
+      const { token } = await registerUser();
+      const bookName = faker.book.title();
+
+      // Create first book with bookName
+      await createBook(token, { bookName });
+
+      // Try to create another book with same name
+      const res = await request(app)
         .post('/api/books')
-        .send(payloadBook)
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.CONFLICT)
-        .then((res) => {
-          expect(res.body.message).to.equal('Book name must be unique');
-          done();
+        .set({ Authorization: `Bearer ${token}` })
+        .send({
+          bookName,
+          author: faker.book.author(),
+          isbn: faker.string.alphanumeric(11),
         })
-        .catch(done);
+        .expect(status.CONFLICT);
+
+      expect(res.body.message).toBe('Book name must be unique');
     });
   });
 
   describe('# GET /api/books/:bookId', () => {
-    it('should get book details', (done) => {
-      request(server)
+    it('should get book details', async () => {
+      const { token, user } = await registerUser();
+      const book = await createBook(token);
+
+      const res = await request(app)
         .get(`/api/books/${book._id}`)
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.owner._id).to.equal(user._id);
-          expect(res.body.bookName).to.equal(book.bookName);
-          expect(res.body.author).to.equal(book.author);
-          expect(res.body.isbn).to.equal(book.isbn);
-          done();
-        })
-        .catch(done);
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.OK);
+
+      expect(res.body.owner._id).toBe(user._id);
+      expect(res.body.bookName).toBe(book.bookName);
+      expect(res.body.author).toBe(book.author);
+      expect(res.body.isbn).toBe(book.isbn);
     });
 
-    it('should report error with message - Not found, when book does not exists', (done) => {
-      request(server)
+    it('should report error with message - Not found, when book does not exists', async () => {
+      const { token } = await registerUser();
+
+      const res = await request(app)
         .get('/api/books/56c787ccc67fc16ccc1a5e92')
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.NOT_FOUND)
-        .then((res) => {
-          expect(res.body.message).to.equal('No such book exists!');
-          done();
-        })
-        .catch(done);
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.NOT_FOUND);
+
+      expect(res.body.message).toBe('No such book exists!');
     });
   });
 
   describe('# PUT /api/books/:bookId', () => {
-    it('should update book details', (done) => {
-      book.bookName = faker.name.findName();
-      const payload = _.pick(book, ['bookName', 'isbn', 'author']);
-      request(server)
+    it('should update book details', async () => {
+      const { token, user } = await registerUser();
+      const book = await createBook(token);
+
+      const updatedData = {
+        bookName: faker.book.title(),
+        author: faker.book.author(),
+        isbn: faker.string.alphanumeric(11),
+      };
+
+      const res = await request(app)
         .put(`/api/books/${book._id}`)
-        .set({ Authorization: `Bearer ${user.token}` })
-        .send(payload)
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.owner._id).to.equal(user._id);
-          expect(res.body.bookName).to.equal(book.bookName);
-          expect(res.body.author).to.equal(book.author);
-          expect(res.body.isbn).to.equal(book.isbn);
-          done();
-        })
-        .catch(done);
+        .set({ Authorization: `Bearer ${token}` })
+        .send(updatedData)
+        .expect(status.OK);
+
+      expect(res.body.owner._id).toBe(user._id);
+      expect(res.body.bookName).toBe(updatedData.bookName);
+      expect(res.body.author).toBe(updatedData.author);
+      expect(res.body.isbn).toBe(updatedData.isbn);
     });
   });
 
   describe('# GET /api/books/', () => {
-    it('should get all books', (done) => {
-      request(server)
+    it('should get all books', async () => {
+      const { token } = await registerUser();
+      await createBook(token);
+
+      const res = await request(app)
         .get('/api/books')
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body).to.be.an('array');
-          done();
-        })
-        .catch(done);
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.OK);
+
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBeGreaterThan(0);
     });
   });
 
   describe('# DELETE /api/books/', () => {
-    it('should delete book', (done) => {
-      request(server)
+    it('should delete book', async () => {
+      const { token, user } = await registerUser();
+      const book = await createBook(token);
+
+      const res = await request(app)
         .delete(`/api/books/${book._id}`)
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.owner._id).to.equal(user._id);
-          expect(res.body.bookName).to.equal(book.bookName);
-          expect(res.body.author).to.equal(book.author);
-          expect(res.body.isbn).to.equal(book.isbn);
-          done();
-        })
-        .catch(done);
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.OK);
+
+      expect(res.body.owner._id).toBe(user._id);
+      expect(res.body.bookName).toBe(book.bookName);
+      expect(res.body.author).toBe(book.author);
+      expect(res.body.isbn).toBe(book.isbn);
     });
-    it('should throw error for deleting the book which was deleted already', (done) => {
-      request(server)
+
+    it('should throw error for deleting a book which was deleted already', async () => {
+      const { token } = await registerUser();
+      const book = await createBook(token);
+
+      await request(app)
         .delete(`/api/books/${book._id}`)
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.NOT_FOUND)
-        .then((res) => {
-          expect(res.body.message).to.equal('No such book exists!');
-          done();
-        })
-        .catch(done);
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.OK);
+
+      const res = await request(app)
+        .delete(`/api/books/${book._id}`)
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.NOT_FOUND);
+
+      expect(res.body.message).toBe('No such book exists!');
     });
   });
 
   describe('# Error Handling', () => {
-    it('should handle express validation error - isbn is required', (done) => {
-      request(server)
+    it('should handle express validation error - isbn is required', async () => {
+      const { token } = await registerUser();
+
+      const res = await request(app)
         .post('/api/books')
+        .set({ Authorization: `Bearer ${token}` })
         .send({
-          bookName: faker.name.findName(),
-          author: faker.name.findName(),
+          bookName: faker.book.title(),
+          author: faker.book.author(),
+          // Not sending isbn here intentionally
         })
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.BAD_REQUEST)
-        .then((res) => {
-          expect(res.body.message).to.equal('"isbn" is required');
-          done();
-        })
-        .catch(done);
+        .expect(status.BAD_REQUEST);
+
+      expect(res.body.message).toBe('"isbn" is required');
     });
   });
 
   describe('# DELETE /api/users/', () => {
-    it('should delete user after done with books testing', (done) => {
-      request(server)
+    it('should delete user after done with books testing', async () => {
+      const { user, token } = await registerUser();
+
+      const res = await request(app)
         .delete(`/api/users/${user._id}`)
-        .set({ Authorization: `Bearer ${user.token}` })
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.email).to.equal(user.email);
-          expect(res.body.firstName).to.equal(user.firstName);
-          expect(res.body.lastName).to.equal(user.lastName);
-          expect(res.body.password).to.equal(undefined); // Password should be removed.
-          done();
-        })
-        .catch(done);
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(status.OK);
+
+      expect(res.body.email).toBe(user.email);
+      expect(res.body.firstName).toBe(user.firstName);
+      expect(res.body.lastName).toBe(user.lastName);
+      expect(res.body.password).toBeUndefined();
     });
   });
 });

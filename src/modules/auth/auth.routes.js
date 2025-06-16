@@ -1,11 +1,13 @@
 const express = require('express');
 const { Joi } = require('express-validation');
-const authCtrl = require('./auth.controller');
-const { validate } = require('../../helpers');
 
+const { validate } = require('../../helpers');
+const authCtrl = require('./auth.controller');
+
+// eslint-disable-next-line new-cap
 const router = express.Router();
 
-const paramValidation = {
+const parameterValidation = {
   login: {
     body: Joi.object({
       email: Joi.string().email().required(),
@@ -24,10 +26,10 @@ const paramValidation = {
 
 /** POST /api/auth/login - Returns token if correct username and password is provided */
 router.route('/login')
-  .post(validate(paramValidation.login), authCtrl.login);
+  .post(validate(parameterValidation.login), authCtrl.login);
 
 /** POST /api/auth/register - Register a new user */
 router.route('/register')
-  .post(validate(paramValidation.registerUser), authCtrl.register);
+  .post(validate(parameterValidation.registerUser), authCtrl.register);
 
 module.exports = router;

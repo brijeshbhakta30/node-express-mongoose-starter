@@ -1,14 +1,15 @@
 const express = require('express');
 const { Joi } = require('express-validation');
-const userCtrl = require('./user.controller');
-const { validate } = require('../../helpers');
 
+const { validate } = require('../../helpers');
+const userCtrl = require('./user.controller');
+
+// eslint-disable-next-line new-cap
 const router = express.Router();
 
-const paramValidation = {
+const parameterValidation = {
   updateUser: {
     body: Joi.object({
-      email: Joi.string().required(),
       firstName: Joi.string(),
       lastName: Joi.string(),
     }),
@@ -31,10 +32,10 @@ router.route('/:userId')
   .get(userCtrl.get)
 
   /** PUT /api/users/:userId - Update user */
-  .put(validate(paramValidation.updateUser), userCtrl.update)
+  .put(validate(parameterValidation.updateUser), userCtrl.update)
 
   /** DELETE /api/users/:userId - Delete user */
-  .delete(userCtrl.remove);
+  .delete(userCtrl.deleteOne);
 
 /** Load user when API with userId route parameter is hit */
 router.param('userId', userCtrl.load);

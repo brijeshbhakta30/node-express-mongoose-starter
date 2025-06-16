@@ -1,8 +1,9 @@
+const { status } = require('http-status');
 const jwt = require('jsonwebtoken');
-const httpStatus = require('http-status');
-const User = require('../user/user.model');
-const APIError = require('../../helpers/APIError');
+
 const config = require('../../config');
+const APIError = require('../../helpers/APIError');
+const User = require('../user/user.model');
 
 /**
  * Returns jwt token and user details if valid email and password are provided
@@ -13,9 +14,10 @@ const config = require('../../config');
 async function login(req, res, next) {
   try {
     const foundUser = await User.getByEmail(req.body.email);
-    if (!foundUser.validPassword(req.body.password)) {
-      throw new APIError('User email and password combination do not match', httpStatus.UNAUTHORIZED);
+    if (!foundUser?.validPassword(req.body.password)) {
+      throw new APIError('User email and password combination do not match', status.UNAUTHORIZED);
     }
+
     const token = generateJWT(foundUser.safeModel());
     return res.json({
       token,
@@ -39,8 +41,9 @@ async function register(req, res, next) {
   try {
     const foundUser = await User.findOne({ email: req.body.email }).exec();
     if (foundUser) {
-      throw new APIError('Email must be unique', httpStatus.CONFLICT);
+      throw new APIError('Email must be unique', status.CONFLICT);
     }
+
     user.password = user.generatePassword(req.body.password);
     const savedUser = await user.save();
     const token = generateJWT(savedUser.safeModel());

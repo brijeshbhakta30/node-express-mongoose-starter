@@ -1,9 +1,11 @@
+const pick = require('lodash/pick');
+
 const User = require('./user.model');
 
 /**
  * Load user and append to req.
  */
-async function load(req, res, next, id) {
+async function load(req, _res, next, id) {
   try {
     const user = await User.get(id);
     req.user = user;
@@ -27,7 +29,7 @@ function get(req, res) {
  */
 async function getProfile(req, res, next) {
   try {
-    const user = await User.get(res.locals.session._id);
+    const user = await User.get(req.auth._id);
     return res.json(user.safeModel());
   } catch (error) {
     return next(error);
@@ -36,16 +38,23 @@ async function getProfile(req, res, next) {
 
 /**
  * Update existing user
- * @property {string} req.body.email - The email of user.
  * @property {string} req.body.firstName - The firstName of user.
  * @property {string} req.body.lastName - The lastName of user.
  * @returns {User}
  */
 async function update(req, res, next) {
   const { user } = req;
-  user.email = req.body.email;
-  user.firstName = req.body.firstName || user.firstName;
-  user.lastName = req.body.lastName || user.lastName;
+  const allowedFields = ['firstName', 'lastName'];
+  const updateFields = pick(req.body, allowedFields);
+  if (Object.keys(updateFields).length === 0) {
+    return res.status(400).json({ message: 'No valid fields to update' });
+  }
+
+  for (const key of Object.keys(updateFields)) {
+    if (updateFields[key] !== undefined) {
+      user[key] = updateFields[key];
+    }
+  }
 
   try {
     const savedUser = await user.save();
@@ -65,7 +74,8 @@ async function list(req, res, next) {
   const { limit = 50, skip = 0 } = req.query;
   try {
     const users = await User.list({ limit, skip });
-    return res.json(users);
+    const safeUsers = users.map(user => user.safeModel());
+    return res.json(safeUsers);
   } catch (error) {
     return next(error);
   }
@@ -75,11 +85,11 @@ async function list(req, res, next) {
  * Delete user.
  * @returns {User}
  */
-async function remove(req, res, next) {
+async function deleteOne(req, res, next) {
   const { user } = req;
   try {
-    const deletedUser = await user.remove();
-    return res.json(deletedUser.safeModel());
+    await user.deleteOne();
+    return res.json(user.safeModel());
   } catch (error) {
     return next(error);
   }
@@ -91,5 +101,5 @@ module.exports = {
   getProfile,
   update,
   list,
-  remove,
+  deleteOne,
 };
