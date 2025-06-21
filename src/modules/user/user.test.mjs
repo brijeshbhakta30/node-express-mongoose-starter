@@ -1,9 +1,9 @@
-const { faker } = require('@faker-js/faker');
-const { status } = require('http-status');
-const request = require('supertest');
+import { faker } from '@faker-js/faker';
+import { status } from 'http-status';
+import request from 'supertest';
 
-const app = require('../../app');
-const { registerUser, loginUser } = require('../../tests/utils');
+import app from '../../app.mjs';
+import { loginUser, registerUser } from '../../tests/utils.mjs';
 
 describe('## User APIs', () => {
   describe('# POST /api/auth/register', () => {

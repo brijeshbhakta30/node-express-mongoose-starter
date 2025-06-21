@@ -1,8 +1,8 @@
-const express = require('express');
-const { Joi } = require('express-validation');
+import express from 'express';
+import { Joi } from 'express-validation';
 
-const { validate } = require('../../helpers');
-const authCtrl = require('./auth.controller');
+import validate from '../../helpers/validate.mjs';
+import authCtrl from './auth.controller.mjs';
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
@@ -32,4 +32,4 @@ router.route('/login')
 router.route('/register')
   .post(validate(parameterValidation.registerUser), authCtrl.register);
 
-module.exports = router;
+export default router;

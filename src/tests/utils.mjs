@@ -1,11 +1,10 @@
-// eslint-disable-next-line unicorn/prevent-abbreviations
-const { faker } = require('@faker-js/faker');
-const { status } = require('http-status');
-const request = require('supertest');
+import { faker } from '@faker-js/faker';
+import { status } from 'http-status';
+import request from 'supertest';
 
-const app = require('../app');
+import app from '../app.mjs';
 
-async function registerUser(overrides = {}) {
+export async function registerUser(overrides = {}) {
   const userPayload = {
     email: faker.internet.email(),
     password: faker.internet.password(),
@@ -26,7 +25,7 @@ async function registerUser(overrides = {}) {
   };
 }
 
-async function loginUser(email, password) {
+export async function loginUser(email, password) {
   const res = await request(app)
     .post('/api/auth/login')
     .send({ email, password })
@@ -37,8 +36,3 @@ async function loginUser(email, password) {
     token: res.body.token,
   };
 }
-
-module.exports = {
-  registerUser,
-  loginUser,
-};

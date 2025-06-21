@@ -1,7 +1,7 @@
-const { status } = require('http-status');
-const mongoose = require('mongoose');
+import { status } from 'http-status';
+import mongoose from 'mongoose';
 
-const APIError = require('../../helpers/APIError');
+import ApiError from '../../helpers/ApiError.mjs';
 
 /**
  * Book Schema
@@ -51,23 +51,23 @@ BookSchema.statics = {
   /**
    * Get book
    * @param {ObjectId} id - The objectId of book.
-   * @returns {Promise<Book, APIError>}
+   * @returns {Promise<Book, ApiError>}
    */
   async get(id) {
     const book = await this.findById(id).populate('owner').exec();
     if (!book) {
-      throw new APIError('No such book exists!', status.NOT_FOUND);
+      throw new ApiError('No such book exists!', status.NOT_FOUND);
     }
 
     return book;
   },
 
   /**
-   * List books and populate owner details to wich the book belongs to.
+   * List books and populate owner details to which the book belongs to.
    * @returns {Promise<Book[]>}
    */
-  list() {
-    return this.find()
+  list(owner, filters = {}) {
+    return this.find({ ...filters, owner })
       .populate('owner')
       .exec();
   },
@@ -91,4 +91,4 @@ BookSchema.statics = {
 /**
  * @typedef Book
  */
-module.exports = mongoose.model('Book', BookSchema);
+export default mongoose.model('Book', BookSchema);

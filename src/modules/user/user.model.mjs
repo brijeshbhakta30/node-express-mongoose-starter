@@ -1,9 +1,9 @@
-const bcrypt = require('bcrypt');
-const { status } = require('http-status');
-const _ = require('lodash');
-const mongoose = require('mongoose');
+import bcrypt from 'bcrypt';
+import { status } from 'http-status';
+import _ from 'lodash';
+import mongoose from 'mongoose';
 
-const APIError = require('../../helpers/APIError');
+import ApiError from '../../helpers/ApiError.mjs';
 
 /**
  * User Schema
@@ -66,12 +66,12 @@ UserSchema.statics = {
   /**
    * Get user
    * @param {ObjectId} id - The objectId of user.
-   * @returns {Promise<User, APIError>}
+   * @returns {Promise<User, ApiError>}
    */
   async get(id) {
     const user = await this.findById(id).exec();
     if (!user) {
-      throw new APIError('No such user exists!', status.NOT_FOUND);
+      throw new ApiError('No such user exists!', status.NOT_FOUND);
     }
 
     return user;
@@ -80,12 +80,12 @@ UserSchema.statics = {
   /**
    * Get user by email
    * @param {ObjectId} email - The email of user.
-   * @returns {Promise<User, APIError>}
+   * @returns {Promise<User, ApiError>}
    */
   async getByEmail(email) {
     const user = await this.findOne({ email }).exec();
     if (!user) {
-      throw new APIError('No such user exists!', status.NOT_FOUND);
+      throw new ApiError('No such user exists!', status.NOT_FOUND);
     }
 
     return user;
@@ -109,4 +109,4 @@ UserSchema.statics = {
 /**
  * @typedef User
  */
-module.exports = mongoose.model('User', UserSchema);
+export default mongoose.model('User', UserSchema);

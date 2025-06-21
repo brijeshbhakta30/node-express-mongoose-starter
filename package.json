@@ -7,23 +7,25 @@
   "private": false,
   "license": "MIT",
   "engines": {
-    "node": ">=20.0.0",
+    "node": ">=20.11.0",
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "dev": "cross-env NODE_ENV=development DEBUG=node-server:* nodemon index.js",
-    "dev:debug": "cross-env NODE_ENV=development DEBUG=node-server:* nodemon --inspect index.js",
+    "dev": "cross-env NODE_ENV=development DEBUG=node-server:* nodemon index.mjs",
+    "dev:debug": "cross-env NODE_ENV=development DEBUG=node-server:* nodemon --inspect index.mjs",
     "lint-help": "eslint -h",
-    "lint": "eslint *.js src --color",
+    "lint": "eslint *.js *.mjs src --color",
     "lint:fix": "npm run lint -- --fix",
     "precommit": "lint-staged && npm test",
     "prepare": "husky",
     "start": "node index",
     "start:debug": "cross-env DEBUG=node-server:* npm start",
-    "test": "cross-env NODE_ENV=test jest --detectOpenHandles",
+    "test-new": "cross-env NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" NODE_ENV=test jest --detectOpenHandles",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules NODE_ENV=test jest --detectOpenHandles",
     "test:watch": "npm test -- --watch",
     "test:coverage": "npm test -- --coverage"
   },
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/brijeshbhakta30/node-express-mongoose-starter.git"
@@ -79,13 +81,15 @@
     "morgan": "1.10.0"
   },
   "devDependencies": {
+    "@babel/core": "7.27.4",
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
     "@faker-js/faker": "9.8.0",
     "@types/express": "5.0.3",
+    "babel-jest": "30.0.2",
     "cross-env": "7.0.3",
-    "eslint": "9.28.0",
-    "eslint-config-blazex": "0.0.22",
+    "eslint": "9.29.0",
+    "eslint-config-blazex": "0.0.26",
     "husky": "9.1.7",
     "jest": "30.0.0",
     "lint-staged": "15.5.2",
@@ -96,11 +100,6 @@
   "lint-staged": {
     "*.js": [
       "eslint --fix"
-    ]
-  },
-  "jest": {
-    "setupFilesAfterEnv": [
-      "<rootDir>/jest.setup.js"
     ]
   }
 }

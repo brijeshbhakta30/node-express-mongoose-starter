@@ -1,6 +1,9 @@
-const dotenv = require('dotenv');
-const { Joi } = require('express-validation');
-const path = require('node:path');
+import dotenv from 'dotenv';
+import { Joi } from 'express-validation';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
 
 const nodeEnvironmentValidator = Joi.string()
   .allow('development', 'production', 'test', 'provision')
@@ -17,7 +20,7 @@ if (environmentError) {
 }
 
 // Require and configure dotenv, will load vars in .env.* file in PROCESS.ENV
-const environmentFilePath = path.resolve(__dirname, '..', '..', `.env.${value.NODE_ENV}`);
+const environmentFilePath = path.resolve(currentDirectory, '..', `.env.${value.NODE_ENV}`);
 const environmentConfig = dotenv.config({ path: environmentFilePath });
 if (environmentConfig.error) {
   throw new Error(`Environment file config error: ${environmentConfig.error}`);
@@ -63,4 +66,4 @@ const config = {
   },
 };
 
-module.exports = config;
+export default config;

@@ -1,5 +1,4 @@
-/* eslint-disable unicorn/filename-case */
-const { status: httpStatus } = require('http-status');
+import { status as httpStatus } from 'http-status';
 
 /**
  * @extends Error
@@ -19,7 +18,7 @@ class ExtendableError extends Error {
  * Class representing an API error.
  * @extends ExtendableError
  */
-class APIError extends ExtendableError {
+class ApiError extends ExtendableError {
   /**
    * Creates an API error.
    * @param {string} message - Error message.
@@ -31,4 +30,4 @@ class APIError extends ExtendableError {
   }
 }
 
-module.exports = APIError;
+export default ApiError;

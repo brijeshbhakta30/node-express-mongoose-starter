@@ -1,15 +1,15 @@
-const compress = require('compression');
-const cors = require('cors');
-const express = require('express');
-const { ValidationError } = require('express-validation');
-const helmet = require('helmet');
-const { status } = require('http-status');
-const methodOverride = require('method-override');
-const logger = require('morgan');
+import compress from 'compression';
+import cors from 'cors';
+import express from 'express';
+import { ValidationError } from 'express-validation';
+import helmet from 'helmet';
+import { status } from 'http-status';
+import methodOverride from 'method-override';
+import logger from 'morgan';
 
-const config = require('./config');
-const APIError = require('./helpers/APIError');
-const routes = require('./routes');
+import config from './config.mjs';
+import ApiError from './helpers/ApiError.mjs';
+import routes from './routes.mjs';
 
 const app = express();
 
@@ -33,18 +33,18 @@ app.use(cors());
 // Mount all routes on /api path
 app.use('/api', routes);
 
-// If error is not an instanceOf APIError, convert it.
+// If error is not an instanceOf ApiError, convert it.
 app.use((err, _req, _res, next) => {
   if (err instanceof ValidationError) {
     // Validation error contains details object which has error message attached to error property.
     const allErrors = err.details.map(pathErrors => Object.values(pathErrors).join(', '));
     const unifiedErrorMessage = allErrors.join(', ').replace(/, ([^,]*)$/, ' and $1');
-    const error = new APIError(unifiedErrorMessage, err.statusCode);
+    const error = new ApiError(unifiedErrorMessage, err.statusCode);
     return next(error);
   }
 
-  if (!(err instanceof APIError)) {
-    const apiError = new APIError(err.message, err.status);
+  if (!(err instanceof ApiError)) {
+    const apiError = new ApiError(err.message, err.status);
     return next(apiError);
   }
 
@@ -53,7 +53,7 @@ app.use((err, _req, _res, next) => {
 
 // Catch 404 and forward to error handler
 app.use((_req, _res, next) => {
-  const err = new APIError('API Not Found', status.NOT_FOUND);
+  const err = new ApiError('API Not Found', status.NOT_FOUND);
   return next(err);
 });
 
@@ -64,4 +64,4 @@ app.use((err, _req, res, _next) =>
     stack: config.env === 'development' ? err.stack : {},
   }));
 
-module.exports = app;
+export default app;

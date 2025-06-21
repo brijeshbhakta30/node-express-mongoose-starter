@@ -1,12 +1,12 @@
-const { status } = require('http-status');
+import { status } from 'http-status';
 
-const APIError = require('../../helpers/APIError');
-const Book = require('./book.model');
+import ApiError from '../../helpers/ApiError.mjs';
+import Book from './book.model.mjs';
 
 /**
  * Load book and append to req.
  */
-async function load(req, res, next, id) {
+async function load(req, _res, next, id) {
   try {
     const book = await Book.get(id);
     req.book = book;
@@ -39,7 +39,7 @@ async function create(req, res, next) {
   try {
     const foundBook = await Book.findOne({ bookName: book.bookName, owner }).exec();
     if (foundBook) {
-      throw new APIError('Book name must be unique', status.CONFLICT, true);
+      throw new ApiError('Book name must be unique', status.CONFLICT, true);
     }
 
     const savedBook = await book.save();
@@ -75,7 +75,7 @@ async function update(req, res, next) {
  */
 async function list(req, res, next) {
   try {
-    const books = await Book.list();
+    const books = await Book.list(req.auth._id, { isActive: true });
     return res.json(books);
   } catch (error) {
     return next(error);
@@ -96,7 +96,7 @@ async function deleteOne(req, res, next) {
   }
 }
 
-module.exports = {
+export default {
   load,
   get,
   create,

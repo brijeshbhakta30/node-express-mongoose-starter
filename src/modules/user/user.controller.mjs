@@ -1,6 +1,6 @@
-const pick = require('lodash/pick');
+import pick from 'lodash/pick.js';
 
-const User = require('./user.model');
+import User from './user.model.mjs';
 
 /**
  * Load user and append to req.
@@ -95,7 +95,7 @@ async function deleteOne(req, res, next) {
   }
 }
 
-module.exports = {
+export default {
   load,
   get,
   getProfile,
