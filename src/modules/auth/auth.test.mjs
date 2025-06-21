@@ -1,9 +1,9 @@
 /* eslint-disable sonarjs/no-hardcoded-passwords */
-const { faker } = require('@faker-js/faker');
-const { status } = require('http-status');
-const request = require('supertest');
+import { faker } from '@faker-js/faker';
+import { status } from 'http-status';
+import request from 'supertest';
 
-const app = require('../../app');
+import app from '../../app.mjs';
 
 describe('## Auth APIs', () => {
   let user;

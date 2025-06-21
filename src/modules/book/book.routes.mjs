@@ -1,8 +1,8 @@
-const express = require('express');
-const { Joi } = require('express-validation');
+import express from 'express';
+import { Joi } from 'express-validation';
 
-const { validate } = require('../../helpers');
-const bookCtrl = require('./book.controller');
+import validate from '../../helpers/validate.mjs';
+import bookCtrl from './book.controller.mjs';
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
@@ -47,4 +47,4 @@ router.route('/:bookId')
 /** Load book when API with bookId route parameter is hit */
 router.param('bookId', bookCtrl.load);
 
-module.exports = router;
+export default router;

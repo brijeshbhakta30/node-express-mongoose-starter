@@ -5,8 +5,7 @@ export default [
     ...configs.node,
     rules: {
       ...configs.node.rules,
-      'unicorn/prefer-module': 'off',
-      'n/no-unpublished-require': ['error', {
+      'n/no-unpublished-import': ['error', {
         allowModules: ['@faker-js/faker', 'supertest', 'mongodb-memory-server', 'eslint-config-blazex'],
       }],
     },

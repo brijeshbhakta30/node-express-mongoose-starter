@@ -1,9 +1,9 @@
-const { faker } = require('@faker-js/faker');
-const { status } = require('http-status');
-const request = require('supertest');
+import { faker } from '@faker-js/faker';
+import { status } from 'http-status';
+import request from 'supertest';
 
-const app = require('../../app');
-const { registerUser } = require('../../tests/utils');
+import app from '../../app.mjs';
+import { registerUser } from '../../tests/utils.mjs';
 
 async function createBook(token, overrides = {}) {
   const bookPayload = {

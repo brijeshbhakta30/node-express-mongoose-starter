@@ -1,9 +1,20 @@
-const { status } = require('http-status');
-const jwt = require('jsonwebtoken');
+import { status } from 'http-status';
+import jwt from 'jsonwebtoken';
 
-const config = require('../../config');
-const APIError = require('../../helpers/APIError');
-const User = require('../user/user.model');
+import config from '../../config.mjs';
+import ApiError from '../../helpers/ApiError.mjs';
+import User from '../user/user.model.mjs';
+
+/**
+ * Generates JWT for the payload
+ * @param {*} payload - Payload to be signed in JWT
+ */
+function generateJWT(payload) {
+  return jwt.sign(payload, config.jwtSecret, {
+    expiresIn: config.jwtExpiresIn,
+    algorithm: 'HS256',
+  });
+}
 
 /**
  * Returns jwt token and user details if valid email and password are provided
@@ -15,7 +26,7 @@ async function login(req, res, next) {
   try {
     const foundUser = await User.getByEmail(req.body.email);
     if (!foundUser?.validPassword(req.body.password)) {
-      throw new APIError('User email and password combination do not match', status.UNAUTHORIZED);
+      throw new ApiError('User email and password combination do not match', status.UNAUTHORIZED);
     }
 
     const token = generateJWT(foundUser.safeModel());
@@ -41,7 +52,7 @@ async function register(req, res, next) {
   try {
     const foundUser = await User.findOne({ email: req.body.email }).exec();
     if (foundUser) {
-      throw new APIError('Email must be unique', status.CONFLICT);
+      throw new ApiError('Email must be unique', status.CONFLICT);
     }
 
     user.password = user.generatePassword(req.body.password);
@@ -56,15 +67,7 @@ async function register(req, res, next) {
   }
 }
 
-/**
- * Generates JWT for the payload
- * @param {*} payload - Payload to be signed in JWT
- */
-function generateJWT(payload) {
-  return jwt.sign(payload, config.jwtSecret, {
-    expiresIn: config.jwtExpiresIn,
-    algorithm: 'HS256',
-  });
-}
-
-module.exports = { login, register };
+export default {
+  login,
+  register,
+};

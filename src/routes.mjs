@@ -1,10 +1,10 @@
-const express = require('express');
-const { expressjwt } = require('express-jwt');
+import express from 'express';
+import { expressjwt } from 'express-jwt';
 
-const config = require('./config');
-const authRoutes = require('./modules/auth/auth.routes');
-const bookRoutes = require('./modules/book/book.routes');
-const userRoutes = require('./modules/user/user.routes');
+import config from './config.mjs';
+import authRoutes from './modules/auth/auth.routes.mjs';
+import bookRoutes from './modules/book/book.routes.mjs';
+import userRoutes from './modules/user/user.routes.mjs';
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
@@ -36,4 +36,4 @@ router.use('/users', userRoutes);
 // Mount book routes at /books
 router.use('/books', bookRoutes);
 
-module.exports = router;
+export default router;
